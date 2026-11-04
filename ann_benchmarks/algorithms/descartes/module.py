@@ -15,10 +15,7 @@ class fng(BaseANN):
                         m=self.method_param["M"], 
                         s=self.method_param["S"],
                         l=self.method_param["L"])
-        try: 
-            self.index.add_vector(input=np.asarray(X))
-        except Exception as e:
-            print(str(e))
+        self.index.add_vector(input=np.asarray(X))
 
     def set_query_arguments(self, ex, ef):
         self.search_ef = ef
