@@ -23,17 +23,34 @@ def read_config(path):
     return json.loads(Path(os.path.expandvars(str(path))).read_text())
 
 
-class NativeQuantizedGraph(BaseANN):
+def load_profile(profile, metric, dimension):
+    if profile == "g9i":
+        presets = Path(__file__).parent / "configs" / "g9i"
+        matches = [read_config(path) for path in sorted(presets.glob("*.json"))]
+        matches = [item for item in matches
+                   if item["metric"] == metric and item["dimension"] == dimension]
+        if len(matches) != 1:
+            raise ValueError("No unique g9i preset for this metric/dimension")
+        result = matches[0]
+    else:
+        result = read_config(profile)
+    result["index_path"] = os.path.expandvars(result["index_path"])
+    if "$" in result["index_path"]:
+        raise ValueError("Set the index environment variable: " + result["index_path"])
+    return result
+
+
+class ZvecQuantizedGraph(BaseANN):
     """Load-only adapter; fit verifies the supplied corpus rather than rebuilding."""
 
     def __init__(self, metric, dimension, profile, artifact):
-        self.profile = read_config(profile)
+        self.profile = load_profile(profile, metric, dimension)
         self.artifact = read_config(artifact)
         self.index = None
         if metric != self.profile["metric"] or dimension != self.profile["dimension"]:
             raise ValueError("Dataset metric/dimension does not match the frozen profile")
         self.dimension = dimension
-        self.name = "zvec-qg-native " + self.profile["dataset"]
+        self.name = "zvec_qg " + self.profile["dataset"]
         for path, expected in self.artifact["runtime_sha256"].items():
             if digest(path) != expected:
                 raise ValueError("Runtime fingerprint mismatch: " + path)

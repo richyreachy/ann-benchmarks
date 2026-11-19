@@ -1,0 +1,84 @@
+{
+  "dataset": "sift-128-euclidean",
+  "metric": "euclidean",
+  "dimension": 128,
+  "train_shape": [
+    1000000,
+    128
+  ],
+  "train_sha256": "ac8e11ed111b09e882bcf0ef1a77ebdd36c89f495bce8fd596603f69c35148e6",
+  "index_path": "${ZVEC_QG_SIFT_INDEX}",
+  "index_sha256": "b1e2294eae9778ebea686c10e577216d4632cf64bab92ac3379e0aa4ee242668",
+  "storage": {
+    "index_type": "kHNSW",
+    "data_type": "DT_FP32",
+    "metric_type": "kL2sq",
+    "dimension": 128,
+    "m": 32,
+    "ef_construction": 400,
+    "use_id_map": true,
+    "params": {
+      "proxima.quantized_graph.thp_policy": "require",
+      "proxima.quantized_graph.thp_min_coverage": 0.95,
+      "proxima.quantized_graph.thp_min_coverage_floor": 0.8
+    }
+  },
+  "construction_provenance": {
+    "index_bytes": 3831125568,
+    "graph": {
+      "m": 32,
+      "ef_construction": 400,
+      "data_type": "DT_FP32",
+      "dimension": 128
+    },
+    "quantized_graph": {
+      "Persist": true,
+      "MaxNeighbors": 64,
+      "RotationViews": 2,
+      "Codec": {
+        "Type": "native"
+      }
+    },
+    "router": {
+      "Anchors": 65536,
+      "ProjectedDimension": 64,
+      "Seed": 202610261259
+    }
+  },
+  "settings": [
+    {
+      "target": 0.9,
+      "options": {
+        "capacity": 128,
+        "margin": 0.006,
+        "bucket_width": 0.002,
+        "max_expansions": 48,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.95,
+      "options": {
+        "capacity": 128,
+        "margin": 0.038,
+        "bucket_width": 0.002,
+        "max_expansions": 64,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.99,
+      "options": {
+        "capacity": 2048,
+        "margin": 0.088,
+        "bucket_width": 0.002,
+        "max_expansions": 128,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    }
+  ],
+  "configuration_source": "g9i_native_validation_20261119/deployment_profiles/sift.json"
+}

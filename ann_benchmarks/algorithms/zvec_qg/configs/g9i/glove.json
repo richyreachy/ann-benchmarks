@@ -1,0 +1,92 @@
+{
+  "dataset": "glove-100-angular",
+  "metric": "angular",
+  "dimension": 100,
+  "train_shape": [
+    1183514,
+    100
+  ],
+  "train_sha256": "3cccad7d66dd35ffd7215e37503f2e1fa31b3aab917a45aa0a6eb4ef590ebcef",
+  "index_path": "${ZVEC_QG_GLOVE_INDEX}",
+  "index_sha256": "6027b182be4945ab5a005a4e91ea1952197a9bdc805c09da156eac9f65f37bfa",
+  "storage": {
+    "index_type": "kHNSW",
+    "data_type": "DT_FP32",
+    "metric_type": "kCosine",
+    "dimension": 100,
+    "m": 64,
+    "ef_construction": 800,
+    "use_id_map": true,
+    "params": {
+      "proxima.quantized_graph.thp_policy": "require",
+      "proxima.quantized_graph.thp_min_coverage": 0.95,
+      "proxima.quantized_graph.thp_min_coverage_floor": 0.8
+    }
+  },
+  "construction_provenance": {
+    "index_bytes": 4757163616,
+    "graph": {
+      "m": 64,
+      "ef_construction": 800,
+      "data_type": "DT_FP32",
+      "dimension": 100
+    },
+    "quantized_graph": {
+      "Persist": true,
+      "MaxNeighbors": 64,
+      "ThreadCount": 4,
+      "RotationViews": 2,
+      "Codec": {
+        "Type": "low_rank",
+        "Rank": 8,
+        "BlockDimension": 4,
+        "Codebook": "gaussian",
+        "TrainingSamples": 1024,
+        "Seed": 20261026,
+        "CenterWeight": 0.5
+      }
+    },
+    "router": {
+      "Anchors": 65536,
+      "ProjectedDimension": 64,
+      "Seed": 202610261259,
+      "provenance": "Inherited unchanged from M64/800 substrate; not re-created by re-encoding."
+    }
+  },
+  "settings": [
+    {
+      "target": 0.9,
+      "options": {
+        "capacity": 2048,
+        "margin": 0.077,
+        "bucket_width": 0.002,
+        "max_expansions": 1536,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.95,
+      "options": {
+        "capacity": 2048,
+        "margin": 0.105,
+        "bucket_width": 0.002,
+        "max_expansions": 1536,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.99,
+      "options": {
+        "capacity": 2048,
+        "margin": 0.141,
+        "bucket_width": 0.002,
+        "max_expansions": 1536,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    }
+  ],
+  "configuration_source": "g9i_native_validation_20261119/deployment_profiles/glove.json"
+}

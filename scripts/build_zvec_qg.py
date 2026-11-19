@@ -43,10 +43,10 @@ def main():
             raise SystemExit("Validated runtime fingerprint changed: " + path)
     output.mkdir(parents=True, exist_ok=False)
     (output / "lib").mkdir()
-    prior = previous / "candidate"
+    prior = (previous / "candidate").resolve()
     for library in (prior / "lib").iterdir():
         (output / "lib" / library.name).symlink_to(library.resolve())
-    cpp = Path(__file__).resolve().parents[1] / "ann_benchmarks/algorithms/zvec_qg_native/core.cpp"
+    cpp = Path(__file__).resolve().parents[1] / "ann_benchmarks/algorithms/zvec_qg/core.cpp"
     compile_entry = next(x for x in json.loads((prior / "build-plan.json").read_text())["compiles"] if x["name"] == "direct")
     link_entry = json.loads((prior / "link-plan.json").read_text())[-1]
     commands = []
