@@ -83,13 +83,26 @@ def main():
                 ordered = np.all(oldids == newids, axis=1)
                 sets_equal = np.all(np.sort(oldids, axis=1) == np.sort(newids, axis=1), axis=1)
                 distance_equal = np.all(np.abs(np.sort(old_exact, axis=1) - np.sort(newdist, axis=1)) <= 1e-6, axis=1)
+                new_returned = np.fromfile(str(prefix) + '.scores', dtype='<f4').reshape(len(query), 10)
+                if ds != 'glove':
+                    new_returned = np.sqrt(np.maximum(new_returned, 0))
+                qi, oi, ni = np.where(oldids[:, :, None] == newids[:, None, :])
+                differing = [dict(query_row=int(q), old_ids=oldids[q].tolist(), new_ids=newids[q].tolist(),
+                                  old_independent_distances=old_exact[q].tolist(),
+                                  new_independent_distances=newdist[q].tolist(),
+                                  equal_distances_within_tolerance=bool(distance_equal[q]))
+                             for q in np.flatnonzero(~ordered)]
                 paired.append(dict(dataset=ds, variant=variant, target=target, query_count=len(query),
                     old_source=fingerprint(oldfile), new_ids=fingerprint(str(prefix) + '.ids'),
                     ordered_ids_identical_queries=int(ordered.sum()), same_id_set_queries=int(sets_equal.sum()),
                     different_ids_equal_distances_queries=int((~sets_equal & distance_equal).sum()),
                     different_ids_different_distances_queries=int((~sets_equal & ~distance_equal).sum()),
+                    reordered_same_ids_queries=int((sets_equal & ~ordered).sum()),
                     tie_distance_absolute_tolerance=1e-6,
-                    old_returned_distance_max_error=float(np.max(np.abs(olddist - old_exact))),
+                    old_framework_distance_max_error=float(np.max(np.abs(olddist - old_exact))),
+                    distance_sources='old: ANN-Benchmarks recomputed HDF5 distances; new: native exact callback scores (sqrt for L2). Old native callback scores were not retained.',
+                    common_ids_max_distance_difference=float(np.max(np.abs(olddist[qi, oi] - new_returned[qi, ni]))) if len(qi) else None,
+                    differing_queries=differing,
                     new_returned_distances_independently_validated=True))
                 alternate = points['capacity-' + str(i)]
                 capacity.append(dict(dataset=ds, variant=variant, target=target,

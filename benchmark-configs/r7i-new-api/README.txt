@@ -103,6 +103,26 @@ Historical Python-call timing and background load differ; the old/new table is
 NOT a direct kernel speedup comparison. Reusing one snapshot for repetitions
 does not measure random variation from rebuilding indexes.
 
-Results are added only after complete validation. Large corpus/provider/index and
+Revalidation is COMPLETE. Results, executable best-*.json presets, and metadata/raw checks are in succinct/ and exploration/. Large corpus/provider/index and
 raw per-query files stay outside Git. Final provenance and summary references
 are in the campaign result manifests; config check rejects legacy query fields.
+
+One-command full reproduction from the c7ibench checkout (fresh output directory):
+  BENCH_ROOT=/home/xingrui/workspace/annbenchmark/ann-benchmarks \
+  SUCCINCT_SOURCE=/home/xingrui/workspace/zvec/r7i-new-api-succinct \
+  EXPLORATION_SOURCE=/home/xingrui/workspace/zvec/r7i-new-api-exploration \
+  ARTIFACT_ROOT=/home/xingrui/workspace/annbenchmark/ann-benchmarks/results/new-replay \
+  bash benchmark-configs/r7i-new-api/reproduce.sh
+
+The root sift/gist/glove JSON files are the actual frozen campaign inputs.
+Variant subdirectories contain the full validation archive and selected runnable
+best-sift.json, best-gist.json, best-glove.json configurations. The test entry
+commit was 200f3c65be7e912a117d793bc1aff1359d2cab4f. Raw large artifacts remain
+under the recorded external result directory; no dataset/index is committed.
+
+Review checks, without the large external artifacts:
+  python benchmark-configs/r7i-new-api/succinct/check_configs.py
+  python benchmark-configs/r7i-new-api/exploration/check_configs.py
+Append --raw on the measurement machine to recheck all 9450 raw file hashes
+and recompute every round QPS. Summary tables use median of three best-of-five
+repetitions. Historical Python-call timings are not directly comparable.
