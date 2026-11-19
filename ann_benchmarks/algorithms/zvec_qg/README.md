@@ -109,3 +109,35 @@ training corpus for distance verification, so total RSS includes both allocation
 
 The historical native measurement archive under `benchmark-configs/r7i-new-api/`
 is unchanged. No g9i timing or historical Python timing is relabeled as this run.
+
+## Formal Python-entry measurements
+
+[Completed 2026-11-19 results, per-round evidence and historical comparison](validation/formal-20261119/README.md).
+
+`scripts/measure_zvec_qg.py` calls the unmodified ANN `run_individual_query`
+function once per round, preserving every round instead of retaining only the
+last round's neighbors. Each setting gets one complete runner warmup and five
+measured rounds. Three fresh Python processes per dataset reload the same index;
+the primary QPS is the median of the three best-of-five QPS values. It checks
+the full dataset fingerprint, IDs, independent distances and both recall metrics
+each round. The first repetition's best-of-five is also reported separately for
+comparison with historical ANN summaries; it is not the highest of 15 rounds.
+
+With the environment above and `SOURCE` pointing to succinct:
+
+```bash
+"$PYTHON" "$SOURCE/tools/core/bench/qg_bench.py" isolate \
+  --manifest "$RUN/isolation.json" -- \
+  numactl --physcpubind=54 --membind=0 "$PYTHON" "$ANN/scripts/measure_zvec_qg.py" \
+    --artifact "$ZVEC_QG_ARTIFACT" --data "$BENCH_ROOT/data" \
+    --source "$SOURCE" --output "$RUN/measurements"
+"$PYTHON" "$ANN/scripts/report_zvec_qg.py" --run "$RUN" --bench-root "$BENCH_ROOT"
+```
+
+The isolation wrapper restores stopped controllers and paused containers on
+completion or failure. After an external hard kill, use its `restore --manifest`
+command. Interrupted background timings must not enter future comparisons.
+The report audits all 315 raw HDF5 files and snapshots only valid, already-finished
+Huawei/01AI results predating this campaign. It does not rerun these algorithms.
+Their historical best-of-five values and background conditions remain distinct
+from the new isolated median-of-three results.

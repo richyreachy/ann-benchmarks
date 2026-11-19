@@ -1,5 +1,9 @@
 # r7i adapter validation — 2026-11-19
 
+The subsequent isolated Python-entry performance campaign is now complete:
+[formal measurements and comparison](validation/formal-20261119/README.md).
+The correctness-only runs described below remain separate from those timings.
+
 This validates the unified `zvec_qg` entry and colocated configurations on actual
 Intel Xeon Platinum 8369B hardware. It follows the organization of g9ibench
 `07fcd9bed0b0`, using this machine's independently built QG snapshots and CSR
