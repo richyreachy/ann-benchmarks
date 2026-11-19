@@ -145,3 +145,5 @@ tree and the dedicated `comprehensive-icelake-20261116/measurements/baseline`
 archive, validating the latter's JSONL provenance and ID hashes. It does not rerun these algorithms.
 Their historical best-of-five values and background conditions remain distinct
 from the new isolated median-of-three results.
+
+The [CPU0 Ice Lake comparison](validation/cpu0-icelake-20261119/README.md) uses the November 19 succinct source and a rebuilt GloVe M64/800 low-rank graph. It records local results at the supplied reference's actual recall values and includes frozen configurations, raw-run fingerprints and a replay entry point.
