@@ -25,8 +25,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--run', required=True, type=Path)
     p.add_argument('--bench-root', required=True, type=Path)
+    p.add_argument('--output', type=Path, help='Separate report directory; existing reports are preserved')
     a = p.parse_args()
-    out = a.run / 'report'
+    out = a.output or a.run / 'report'
     out.mkdir(exist_ok=False)
     summary = json.loads((a.run/'measurements/summary.json').read_text())
     complete = json.loads((a.run/'measurements/complete.json').read_text())
@@ -48,6 +49,14 @@ def main():
     run = json.loads((a.run/'measurements/run.json').read_text())
     cutoff = datetime.datetime.fromisoformat(run['started_at']).timestamp()
     competitors, rejected, coverage = [], [], []
+    # Vendor revalidations live outside the standard result tree. Their JSONL
+    # records provide dataset/algorithm provenance absent from some HDF5 attrs.
+    extra = []
+    base = a.bench_root/'results/comprehensive-icelake-20261116/measurements/baseline'
+    for manifest in sorted(base.glob('*/*/measurements.jsonl')):
+        for line in manifest.read_text().splitlines():
+            record = json.loads(line)
+            extra.append((Path(record['result']), record, str(manifest)))
     for ds, name in [('sift', 'sift-128-euclidean'), ('gist', 'gist-960-euclidean'), ('glove', 'glove-100-angular')]:
         with h5py.File(a.bench_root/'data'/(name+'.hdf5')) as f:
             truth = f['distances'][:, 9]
@@ -55,13 +64,18 @@ def main():
             n = len(f['train'])
         for algo in ['qsgngt', 'descartes(01AI)']:
             valid = []
-            for path in sorted((a.bench_root/'results'/name/'10'/algo).glob('*.hdf5')):
+            paths = [(p, None, None) for p in sorted((a.bench_root/'results'/name/'10'/algo).glob('*.hdf5'))]
+            paths += [(p, r, m) for p, r, m in extra if r['dataset'] == name and r['variant'] == algo]
+            for path, provenance, manifest in paths:
                 try:
                     # Interrupted/resumed background results must not enter this snapshot.
                     if path.stat().st_mtime >= cutoff:
                         continue
                     with h5py.File(path) as f:
-                        require(f.attrs['algo'] == algo and f.attrs['dataset'] == name, 'Identity')
+                        if provenance is None:
+                            require(f.attrs['algo'] == algo and f.attrs['dataset'] == name, 'Identity')
+                        else:
+                            require(json.loads(f.attrs['parameters_json']) == provenance['parameters'], 'Parameters/provenance')
                         require(f.attrs['count'] == 10 and f.attrs['run_count'] == 5 and not f.attrs.get('batch_mode', False), 'Protocol')
                         ids, dist, times = f['neighbors'][:], f['distances'][:], f['times'][:]
                         best = float(f.attrs['best_search_time'])
@@ -71,10 +85,13 @@ def main():
                         require(((live & np.isfinite(dist)) | ((ids == -1) & np.isposinf(dist))).all(), 'IDs/distances')
                         sorted_ids = np.sort(ids, axis=1)
                         require(not ((sorted_ids[:,1:] == sorted_ids[:,:-1]) & (sorted_ids[:,1:] >= 0)).any(), 'Duplicates')
+                        if provenance is not None:
+                            require(hashlib.sha256(ids.astype('<i8').tobytes()).hexdigest() == provenance['ids_sha256'], 'Historical manifest ID hash')
+                            require(np.isclose(1/best, provenance['qps'], rtol=1e-12), 'Historical manifest QPS')
                         valid.append(dict(dataset=ds, algorithm=algo, qps=1/best,
                             ann_recall=float(np.mean(dist <= truth[:,None]+.001)),
                             strict_id_recall=float(np.mean(np.any(ids[:,:,None] == strict_truth[:,None,:],axis=2))),
-                            file=str(path), mtime=path.stat().st_mtime))
+                            file=str(path), mtime=path.stat().st_mtime, provenance_manifest=manifest))
                 except (OSError, KeyError, ValueError) as e:
                     rejected.append(dict(file=str(path), error=str(e)))
             coverage.append(dict(dataset=ds, algorithm=algo, valid_points=len(valid)))

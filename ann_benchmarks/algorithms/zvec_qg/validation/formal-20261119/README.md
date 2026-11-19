@@ -1,5 +1,12 @@
 # Formal zvec_qg Python-entry measurements — 2026-11-19
 
+**Historical comparator correction:** the original table scanned only the main
+results tree and missed the dedicated vendor revalidation archive. In particular,
+Huawei GIST's 1,315/274/no-99% values were not its best known results. Zvec's own
+formal measurements remain valid. Use the [corrected comparison and new Huawei
+GIST measurements](../huawei-gist-20261119/README.md); the original table is kept
+as an audit record and must not be used as a complete vendor comparison.
+
 Succinct source `898e87b08591940dd2896191342e6481730fc6da`, validated core `21c259867371586726e772145dcfa4b701af2d5f`; ANN adapter `fca371990a1544602b18429b39fa4f03f167ab16` plus the fingerprinted `scripts/measure_zvec_qg.py` added in this delivery. No core or adapter change during measurement.
 
 Actual CPU: Xeon Platinum 8369B (Ice Lake). Single query/thread, CPU 54, SMT sibling 55, NUMA memory bind 0. Twelve benchmark containers and two controllers were paused and restored successfully. Nine fresh measurement processes have recorded affinity, thread count and NUMA maps.

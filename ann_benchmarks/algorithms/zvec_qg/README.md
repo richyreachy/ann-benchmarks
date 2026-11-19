@@ -114,6 +114,8 @@ is unchanged. No g9i timing or historical Python timing is relabeled as this run
 
 [Completed 2026-11-19 results, per-round evidence and historical comparison](validation/formal-20261119/README.md).
 
+[Corrected vendor archive coverage and new Huawei GIST confirmation](validation/huawei-gist-20261119/README.md).
+
 `scripts/measure_zvec_qg.py` calls the unmodified ANN `run_individual_query`
 function once per round, preserving every round instead of retaining only the
 last round's neighbors. Each setting gets one complete runner warmup and five
@@ -138,6 +140,8 @@ The isolation wrapper restores stopped controllers and paused containers on
 completion or failure. After an external hard kill, use its `restore --manifest`
 command. Interrupted background timings must not enter future comparisons.
 The report audits all 315 raw HDF5 files and snapshots only valid, already-finished
-Huawei/01AI results predating this campaign. It does not rerun these algorithms.
+Huawei/01AI results predating this campaign. It includes both the standard results
+tree and the dedicated `comprehensive-icelake-20261116/measurements/baseline`
+archive, validating the latter's JSONL provenance and ID hashes. It does not rerun these algorithms.
 Their historical best-of-five values and background conditions remain distinct
 from the new isolated median-of-three results.
