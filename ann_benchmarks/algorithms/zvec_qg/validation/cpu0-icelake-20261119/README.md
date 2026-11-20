@@ -70,3 +70,44 @@ The newly built graph needs fresh hashes, an identified runtime manifest and a n
 The final frozen table is one campaign. At the stricter GloVe actual recalls of 90.730%, 96.047% and 99.213%, the earlier campaign on this same block4 graph and settings measured 16,376 / 9,596 / 4,382 QPS. Differences between these repeated campaigns are observable even with identical results. A separate run targeting the nominal floors measured 17,328 / 10,884 / 4,832 QPS at 90.007% / 95.013% / 99.011%. The latter meets different actual recall targets and is archived in glove-nominal.json.
 
 In the local historical comparison, Huawei GloVe achieved 16,135 / 9,183 / 3,809 QPS and 01AI achieved 15,456 / 7,948 / 2,592 QPS. On the final frozen run the two lower GloVe cells fell below those historical Huawei values. SIFT and GIST cleared both local historical comparators in all six cells. Supplier measurements and Zvec measurements were taken in separate campaigns. Comparing the GloVe Gaussian block8 and block4 codecs on the same M64 graph favored block4 at all three reference actual-recall floors. GIST achieved higher high-recall throughput on the alternative substrate at the cost of some throughput at the two lower thresholds.
+
+## GloVe query presets
+
+Use `--preset recommended` for the seven nominal recall floors. Use
+`--preset huawei-matched` for the three Zvec points calibrated against the
+historical Huawei recall values 36.376%, 56.452% and 70.230%.
+Both presets use the frozen CPU0 GloVe provider, snapshot, router and succinct
+binary recorded above. Omitting the flag replays the archived reference run.
+
+| Recommended floor | Actual ANN Recall@10 | QPS |
+|---:|---:|---:|
+| 30% | 31.633% | 64,953 |
+| 50% | 51.362% | 50,734 |
+| 70% | 70.572% | 35,343 |
+| 85% | 85.003% | 22,270 |
+| 90% | 90.007% | 17,275 |
+| 95% | 95.013% | 10,916 |
+| 99% | 99.011% | 4,855 |
+
+These QPS values come from the individually identified campaigns in the
+[preset file](../../configs/r7i-cpu0/glove.json). Each is the median of
+three process-level best-of-five QPS values using all 10,000 queries.
+Each point also records strict ID recall and the expected ordered-ID digest.
+
+To reproduce the recommended settings, run the following on the measurement
+host with `B`, `R`, `ARCH` and `NUMA` set as in the reproduction section.
+Set `PRESET=huawei-matched` to replay the diagnostic points instead.
+
+~~~bash
+PRESET=recommended
+OUT=$(mktemp -d "$R/glove-replay-XXXXXX")
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+"$B/.venv/bin/python" "$R/core/tools/core/bench/qg_bench.py" isolate \
+    --manifest "$OUT/isolation.json" -- bash -ec '
+        for rep in 0 1 2; do
+            "$1" --physcpubind=0 --membind=0 "$2/.venv/bin/python" \
+                "$3/replay.py" glove --preset "$4" --repeat "$rep" \
+                --data "$2/data/glove-100-angular.hdf5" --output "$5/rep-$rep"
+        done
+    ' _ "$NUMA" "$B" "$ARCH" "$PRESET" "$OUT"
+~~~

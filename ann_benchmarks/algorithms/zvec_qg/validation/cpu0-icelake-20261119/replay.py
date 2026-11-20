@@ -21,6 +21,8 @@ def main():
     parser.add_argument('--data', type=Path, required=True, help='Original dataset HDF5 file')
     parser.add_argument('--output', type=Path, required=True, help='A new directory for this process')
     parser.add_argument('--repeat', type=int, choices=range(3), required=True)
+    parser.add_argument('--preset', choices=['archived', 'recommended', 'huawei-matched'],
+                        default='archived', help='Select the archived settings or a CPU0 GloVe query preset')
     parser.add_argument('--provider', type=Path, help='Override the frozen provider path')
     parser.add_argument('--snapshot', type=Path, help='Override the GloVe QG snapshot path; its router must be adjacent')
     parser.add_argument('--runtime', type=Path, help='A relocated artifact manifest with the archived runtime hashes')
@@ -37,6 +39,18 @@ def main():
     manifest = read(folder / 'inputs.json')[args.dataset]
     saved = folder / args.dataset
     profile = read(saved / 'profile.json')
+    if args.preset == 'archived':
+        options = read(saved / 'selected.json')
+        scores = [x for x in read(folder / 'scores.json') if x['dataset'] == args.dataset]
+    else:
+        if args.dataset != 'glove':
+            parser.error('The recommended and huawei-matched presets apply to GloVe')
+        config = read(folder.parents[1] / 'configs/r7i-cpu0/glove.json')
+        if config['dataset'] != profile['dataset']:
+            raise ValueError('Query preset dataset differs from the frozen profile')
+        scores = config[args.preset]
+        options = [s['options'] for s in scores]
+        profile['settings'] = [dict(target=s['target_recall'], options=s['options']) for s in scores]
     if ref.digest(args.data) != manifest['dataset_sha256']:
         raise ValueError('Dataset SHA-256 mismatch')
     if args.provider:
@@ -58,8 +72,6 @@ def main():
     args.output.mkdir(parents=True, exist_ok=False)
     profile_file = args.output / 'profile.json'
     profile_file.write_text(json.dumps(profile, indent=2))
-    options = read(saved / 'selected.json')
-    scores = [x for x in read(folder / 'scores.json') if x['dataset'] == args.dataset]
     with h5py.File(args.data, 'r') as data:
         train = data['train'][:]
         queries = data['test'][:]
@@ -68,7 +80,8 @@ def main():
     engine.fit(train)
     rows = []
     try:
-        order = range(3) if args.repeat % 2 == 0 else reversed(range(3))
+        settings = range(len(options))
+        order = settings if args.repeat % 2 == 0 else reversed(settings)
         for setting in order:
             engine.set_query_arguments(options[setting])
             for query in queries:
