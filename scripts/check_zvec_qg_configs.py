@@ -54,15 +54,13 @@ def main():
     cpu0 = json.loads((ROOT / 'ann_benchmarks/algorithms/zvec_qg/configs/r7i-cpu0/glove.json').read_text())
     no_legacy(cpu0)
     require(cpu0['dataset'] == 'glove-100-angular', 'CPU0 dataset')
-    for name, targets in [('recommended', [.3, .5, .7, .85, .9, .95, .99]),
-                          ('huawei-matched', [.36376, .56452, .70230])]:
-        points = cpu0[name]
-        require([p['target_recall'] for p in points] == targets, 'CPU0 recall targets: ' + name)
-        for p in points:
-            require(p['target_recall'] <= p['actual_ann_recall'] <= 1, 'CPU0 recall below target')
-            require(len(p['repeat_best_qps']) == 3 and median(p['repeat_best_qps']) == p['median_best_qps'],
-                    'CPU0 QPS aggregation')
-        print('r7i-cpu0 glove', name, 'PASS:', len(points), 'validated settings')
+    points = cpu0['recommended']
+    require([p['target_recall'] for p in points] == [.3, .5, .7, .85, .9, .95, .99], 'CPU0 recommended recall targets')
+    for p in points:
+        require(p['target_recall'] <= p['actual_ann_recall'] <= 1, 'CPU0 recall below target')
+        require(len(p['repeat_best_qps']) == 3 and median(p['repeat_best_qps']) == p['median_best_qps'],
+                'CPU0 QPS aggregation')
+    print('r7i-cpu0 glove recommended PASS:', len(points), 'validated settings')
 
 
 if __name__ == '__main__':

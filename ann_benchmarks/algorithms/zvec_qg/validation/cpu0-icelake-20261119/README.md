@@ -73,10 +73,8 @@ In the local historical comparison, Huawei GloVe achieved 16,135 / 9,183 / 3,809
 
 ## GloVe query presets
 
-Use `--preset recommended` for the seven nominal recall floors. Use
-`--preset huawei-matched` for the three Zvec points calibrated against the
-historical Huawei recall values 36.376%, 56.452% and 70.230%.
-Both presets use the frozen CPU0 GloVe provider, snapshot, router and succinct
+Use `--preset recommended` for the seven nominal recall floors.
+It uses the frozen CPU0 GloVe provider, snapshot, router and succinct
 binary recorded above. Omitting the flag replays the archived reference run.
 
 | Recommended floor | Actual ANN Recall@10 | QPS |
@@ -96,18 +94,16 @@ Each point also records strict ID recall and the expected ordered-ID digest.
 
 To reproduce the recommended settings, run the following on the measurement
 host with `B`, `R`, `ARCH` and `NUMA` set as in the reproduction section.
-Set `PRESET=huawei-matched` to replay the diagnostic points instead.
 
 ~~~bash
-PRESET=recommended
 OUT=$(mktemp -d "$R/glove-replay-XXXXXX")
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 "$B/.venv/bin/python" "$R/core/tools/core/bench/qg_bench.py" isolate \
     --manifest "$OUT/isolation.json" -- bash -ec '
         for rep in 0 1 2; do
             "$1" --physcpubind=0 --membind=0 "$2/.venv/bin/python" \
-                "$3/replay.py" glove --preset "$4" --repeat "$rep" \
-                --data "$2/data/glove-100-angular.hdf5" --output "$5/rep-$rep"
+                "$3/replay.py" glove --preset recommended --repeat "$rep" \
+                --data "$2/data/glove-100-angular.hdf5" --output "$4/rep-$rep"
         done
-    ' _ "$NUMA" "$B" "$ARCH" "$PRESET" "$OUT"
+    ' _ "$NUMA" "$B" "$ARCH" "$OUT"
 ~~~

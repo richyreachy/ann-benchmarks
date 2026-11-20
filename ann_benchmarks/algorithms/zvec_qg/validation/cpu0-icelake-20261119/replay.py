@@ -21,7 +21,7 @@ def main():
     parser.add_argument('--data', type=Path, required=True, help='Original dataset HDF5 file')
     parser.add_argument('--output', type=Path, required=True, help='A new directory for this process')
     parser.add_argument('--repeat', type=int, choices=range(3), required=True)
-    parser.add_argument('--preset', choices=['archived', 'recommended', 'huawei-matched'],
+    parser.add_argument('--preset', choices=['archived', 'recommended'],
                         default='archived', help='Select the archived settings or a CPU0 GloVe query preset')
     parser.add_argument('--provider', type=Path, help='Override the frozen provider path')
     parser.add_argument('--snapshot', type=Path, help='Override the GloVe QG snapshot path; its router must be adjacent')
@@ -44,7 +44,7 @@ def main():
         scores = [x for x in read(folder / 'scores.json') if x['dataset'] == args.dataset]
     else:
         if args.dataset != 'glove':
-            parser.error('The recommended and huawei-matched presets apply to GloVe')
+            parser.error('The recommended preset applies to GloVe')
         config = read(folder.parents[1] / 'configs/r7i-cpu0/glove.json')
         if config['dataset'] != profile['dataset']:
             raise ValueError('Query preset dataset differs from the frozen profile')

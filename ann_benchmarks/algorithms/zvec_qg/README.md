@@ -22,10 +22,9 @@ The consistency checker ties presets to archived winning parameters and artifact
 ## Ice Lake CPU0 GloVe settings
 
 For the succinct M64/800 provider with the block4 low-rank snapshot, use the
-[CPU0 GloVe query presets](configs/r7i-cpu0/glove.json) and the
+[recommended CPU0 GloVe query preset](configs/r7i-cpu0/glove.json) and the
 [CPU0 replay commands](validation/cpu0-icelake-20261119/README.md#glove-query-presets).
-The seven recommended settings cover 30% through 99% recall. Three additional
-settings reproduce the low-recall Huawei comparison. The default r7i CLI
+The seven recommended settings cover 30% through 99% recall. The default r7i CLI
 preset above uses its own CSR provider and snapshot family.
 
 ## Build the adapter
