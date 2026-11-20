@@ -2,7 +2,7 @@
 
 Core commits: exploration `5702bc79241ecd70e1d64a98065e173f1e795453`; succinct `3cb02f17b7ad929cd84af4f149bf0c11e11516da`. The installed/runtime artifact manifest identifies which branch is loaded. The current default validation manifest uses succinct.
 
-Project-owned Turbo modules now use `quantized_graph_*` names. HNSW source, arithmetic, index wire format and frozen query settings are unchanged. Existing FP32 containers reopen through the independent graph API. The ANN selector is `zvec_qg`; executable presets reside in `configs/g9i/`. Historical `benchmark_configs/g9i/` measurements keep their original provenance.
+Project-owned Turbo modules now use `quantized_graph_*` names. HNSW source, arithmetic, index wire format and frozen query settings are unchanged. Existing FP32 containers reopen through the independent graph API. The ANN selector is `zvec_qg`; executable presets reside in `configs/g9i/`. [Historical measurements](HISTORICAL_RESULTS.md) keep their original provenance.
 
 Each branch: two balanced AB/BA process blocks, three complete-query timings per setting/process, single-thread CPU0, serial. Total: 24 accepted processes, 216 timings and 72 audited official HDF5 results. All ordered IDs and official ANN Recall@10 match. C++ tests: 29 exploration + 30 succinct; unsupported-feature compilation passes. Full performance validation covers the three frozen FP32 indexes; FP16 has functional coverage only.
 

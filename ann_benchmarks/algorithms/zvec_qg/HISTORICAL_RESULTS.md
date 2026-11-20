@@ -1,3 +1,40 @@
+# Historical G9i results
+
+Current native-entry validation and memory measurements are in [VALIDATION.md](VALIDATION.md).
+The CSV below preserves all 21 historical summary rows without rounding or changing their values.
+
+These measurements used Zvec `b44f0e09+python-qg-binding`, full SIFT/GIST/GloVe
+training and query sets, FP32, TopK=10, and one query thread. QPS is the median
+of three repeats, each using the best of five timed rounds. Recall uses the
+ANN distance threshold (the tenth exact distance plus 0.001). Public queries
+were used to select parameters; these results are not an independent holdout.
+They have not been revalidated through the current native adapter. Do not mix
+this timing protocol or these versions with the current validation table.
+
+## Original evidence
+
+The complete historical construction/query recipes, three-repeat measurements,
+machine metadata and file fingerprints remain in Git at
+[`e754035`](https://github.com/richyreachy/ann-benchmarks/tree/e7540351ef5a05944052355e4da41f967ca9cd7a/benchmark_configs).
+The former `benchmark_configs/g9i/` contains the original measurement archive;
+`benchmark_configs/legacy-qg-20261106/` contains retired HNSW-QG YAML recipes.
+Those recipes are not current executable defaults. Removing them from the
+working tree does not change the original source, indexes or measurements.
+
+For example, inspect the original detailed SIFT results with:
+
+```bash
+git show e7540351ef5a05944052355e4da41f967ca9cd7a:benchmark_configs/g9i/sift.json
+```
+
+Raw data, indexes, timings and environment-specific reports remain in their
+original server run directories. An additional Git bundle and working-copy
+backup were saved under the exploration run `ann_cleanup_20261120` before this
+cleanup; no active benchmark data or runtime was moved.
+
+## Unmodified historical summary
+
+```csv
 dataset,target_ann_recall,profile,qps_median,mean_query_time_us,actual_ann_recall,measured_revision,new_api_revalidated
 gist-960-euclidean,0.3,hadamard_low_rank,68664.81743158014,14.563499,0.3056,b44f0e09+python-qg-binding,False
 gist-960-euclidean,0.5,full,48550.07624789474,20.59729,0.5003,b44f0e09+python-qg-binding,False
@@ -20,3 +57,8 @@ sift-128-euclidean,0.85,full,62511.978857948656,15.996934,0.88805,b44f0e09+pytho
 sift-128-euclidean,0.9,full,59400.618298659836,16.834841600000004,0.90301,b44f0e09+python-qg-binding,False
 sift-128-euclidean,0.95,full,47210.384192158046,21.1817806,0.95178,b44f0e09+python-qg-binding,False
 sift-128-euclidean,0.99,no_router,28695.66851796772,34.848465000000004,0.99018,b44f0e09+python-qg-binding,False
+```
+
+The original CSV SHA256 is `708888b8ef7349fb3388a9f47dac71f480bdc2d663114c0fe9f95ea7435a5f95`.
+For current runs use only the colocated [g9i presets](configs/g9i/) and retain
+new measurements with their own source, binary, index and dataset fingerprints.

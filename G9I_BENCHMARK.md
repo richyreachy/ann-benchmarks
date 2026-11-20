@@ -1,45 +1,23 @@
-# G9i benchmark 配置归档
+# G9i benchmark
 
 机器相关的评测配置和证据在 ann-benchmarks 的 `g9ibench` 分支维护；算法实现仍在 Zvec 仓库维护。
 
-## 当前执行配置
-
-算法入口统一为 [`zvec_qg`](ann_benchmarks/algorithms/zvec_qg/README.md)。使用 `--algorithm zvec_qg`，配置自动从算法目录选择：
+当前入口为 [`zvec_qg`](ann_benchmarks/algorithms/zvec_qg/README.md)，使用 `--local --algorithm zvec_qg`。
+执行配置集中在算法目录中：
 
 - [SIFT](ann_benchmarks/algorithms/zvec_qg/configs/g9i/sift.json)
 - [GIST](ann_benchmarks/algorithms/zvec_qg/configs/g9i/gist.json)
 - [GloVe](ann_benchmarks/algorithms/zvec_qg/configs/g9i/glove.json)
 
-设置 `ZVEC_QG_ARTIFACT` 及三个数据集的 `ZVEC_QG_*_INDEX` 路径变量。查询配置、构图来源和索引/训练数据 SHA256 均随配置记录。
+运行前按算法 README 设置运行时和三个数据集的索引路径变量。配置包含构图来源、索引/训练数据指纹和查询参数；这个适配器负责加载既有索引，不重新构图。
 
-## 历史配置归档
+已测结果保留在以下文档中，代码版本、计时协议和内存口径分别标明：
 
-- [使用说明及新 API 迁移边界](benchmark_configs/g9i/README.txt)
-- [SIFT](benchmark_configs/g9i/sift.json)
-- [GIST](benchmark_configs/g9i/gist.json)
-- [GloVe](benchmark_configs/g9i/glove.json)
-- [21个召回档配置摘要](benchmark_configs/g9i/summary.csv)
-- [数据来源和验证证据](benchmark_configs/g9i/validation.json)
+- [当前原生入口验证：三个数据集、召回/QPS 回归及内存表](ann_benchmarks/algorithms/zvec_qg/VALIDATION.md)
+- [历史 21 个召回档结果及完整原始配置的 Git 位置](ann_benchmarks/algorithms/zvec_qg/HISTORICAL_RESULTS.md)
 
-`benchmark_configs/g9i/` 归档已完成的 g9i 全量实验配置，没有打包数据、索引、二进制或原始大结果文件。
+仓库根目录 `results/` 中现有 PNG 沿用上游 main，不是这次 Zvec 验证生成的图。
+原始测量、报告、大型数据、索引和二进制保留在对应服务器 run 目录中，未因本次清理移动或覆盖。
 
-独立原生入口另由 [`zvec_qg`](ann_benchmarks/algorithms/zvec_qg/README.md) 适配器提供。
-它加载有指纹的既有索引，通过 `QuantizedGraphIndex` 查询，使用独立的运行配置和结果目录；不会把本目录的历史测量重新标记为新版本结果。
-
-## 验证归档
-
-在仓库根目录执行：
-
-```bash
-python3 benchmark_configs/g9i/validate.py
-```
-
-该命令检查配置与摘要一致性，不运行 benchmark。
-
-## 版本边界
-
-原始归档来自 Zvec 仓库提交 `3eb98231`。测量版本为 Zvec `b44f0e09+python-qg-binding`，不是新 API 提交 `3634b4a6` 的复验结果。
-
-JSON 中保留旧接口参数，同时提供尚未经过新 API 运行验证的映射。新提交拒绝旧 HNSW QG JSON 和 local_builder YAML；这些历史 JSON 不能直接作为新接口的一键复测配置。新适配器使用算法目录中的冻结配置，历史 21 个点的全量复验仍应另外记录版本与测量证据。
-
-证据路径以原评测工作区根目录为基准；全新 checkout 中不存在 `bench_runs/` 是正常的。相应 NPZ、数据及索引须从原测试机器另行获取，不能把配置一致性检查当作运行正确性验证。
+查询计时固定 CPU 0、单线程且串行进行；构建/算法任务并发最多为 2，计时期间不编译。
+新增测量应使用独立 run 目录，记录实际召回、QPS、总 RSS、加载前 RSS、索引磁盘大小及代码/运行时指纹。

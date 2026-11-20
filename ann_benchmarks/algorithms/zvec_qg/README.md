@@ -99,8 +99,9 @@ when comparing naturally admitted processes.
 
 ## Provenance boundary
 
-`benchmark_configs/g9i/` remains the immutable historical configuration archive
-measured with `b44f0e09+python-qg-binding`. Its 21 presets and new-API mappings do
-not become revalidated merely by switching branches or adding this adapter.
-The current server's nine regression settings use separately fingerprinted
-indexes and results. Keep new measurements in a new role-specific run directory.
+The [historical results](HISTORICAL_RESULTS.md) preserve the 21 summary rows
+measured with `b44f0e09+python-qg-binding` and point to their complete Git archive.
+They do not become revalidated by switching branches or adding this adapter.
+Current regression settings, memory measurements and version boundaries remain
+in [VALIDATION.md](VALIDATION.md). Keep new measurements in a new role-specific
+run directory; use the colocated `configs/g9i/` for current execution.
