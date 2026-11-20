@@ -1,0 +1,132 @@
+{
+  "kind": "historical_configuration_archive",
+  "source_repository": "richyreachy/zvec",
+  "source_branch": "feat/quantized-graph-performance-exploration",
+  "source_head_at_migration": "33bbd8ccdc537dcca9cc3a985d1e4d77b5ec8fe8",
+  "archived_at": "2026-11-20",
+  "configuration_period": "2026-10-30 through 2026-11-06",
+  "current_independent_api_validated": false,
+  "note": "Source HEAD identifies the checkout at migration, not the measured code. Three GloVe files include preserved local edits. These retired HNSW-QG YAML recipes are not executable presets for the current independent API.",
+  "files": {
+    "annbenchmark_three_datasets.yaml": {
+      "source_path": "tools/core/bench/config/annbenchmark_three_datasets.yaml",
+      "sha256": "ba6801a62d88c1a4a3fdd8e2ea370fc3ff5ea4120a856c4a69aec2fd43df56a2",
+      "source_head_sha256": "ba6801a62d88c1a4a3fdd8e2ea370fc3ff5ea4120a856c4a69aec2fd43df56a2",
+      "included_local_edit": false
+    },
+    "cohere_build.yaml": {
+      "source_path": "tools/core/bench/config/cohere_build.yaml",
+      "sha256": "bef6cf31e9a9fdd78057266ed6f81fe14395564cc5c2c349db6396b911ee72b7",
+      "source_head_sha256": "bef6cf31e9a9fdd78057266ed6f81fe14395564cc5c2c349db6396b911ee72b7",
+      "included_local_edit": false
+    },
+    "cohere_fp16_build.yaml": {
+      "source_path": "tools/core/bench/config/cohere_fp16_build.yaml",
+      "sha256": "7677f8128db8de01d1f5e298e9df0bb6be26923c833960907fbde1222556ecc5",
+      "source_head_sha256": "7677f8128db8de01d1f5e298e9df0bb6be26923c833960907fbde1222556ecc5",
+      "included_local_edit": false
+    },
+    "cohere_fp16_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/cohere_fp16_recall_bench.yaml",
+      "sha256": "8dfa7fc2b7150f2e2ccaff997983ded74d964377f6e9a7c6c2f6c4ad8f09621f",
+      "source_head_sha256": "8dfa7fc2b7150f2e2ccaff997983ded74d964377f6e9a7c6c2f6c4ad8f09621f",
+      "included_local_edit": false
+    },
+    "cohere_fp32_build.yaml": {
+      "source_path": "tools/core/bench/config/cohere_fp32_build.yaml",
+      "sha256": "9a3ac439b044eb6b2f61e4984f0571cd52739ee38b21376c211524795b4afcb3",
+      "source_head_sha256": "9a3ac439b044eb6b2f61e4984f0571cd52739ee38b21376c211524795b4afcb3",
+      "included_local_edit": false
+    },
+    "cohere_fp32_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/cohere_fp32_recall_bench.yaml",
+      "sha256": "ac091a4cdc731ae38bab4abcffd009ffe49c2e9f77a0d31dccce5ae41536aadf",
+      "source_head_sha256": "ac091a4cdc731ae38bab4abcffd009ffe49c2e9f77a0d31dccce5ae41536aadf",
+      "included_local_edit": false
+    },
+    "cohere_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/cohere_recall_bench.yaml",
+      "sha256": "37378ec13ccc75aa4db0eb70596c35593fdc0dccc88464c9c75b7f2f1a68c325",
+      "source_head_sha256": "37378ec13ccc75aa4db0eb70596c35593fdc0dccc88464c9c75b7f2f1a68c325",
+      "included_local_edit": false
+    },
+    "gist_build.yaml": {
+      "source_path": "tools/core/bench/config/gist_build.yaml",
+      "sha256": "3de6d92e66b5dc6b8c74d57ddb1cf6ff1b6e06ce39d950ae5a636c32231620de",
+      "source_head_sha256": "3de6d92e66b5dc6b8c74d57ddb1cf6ff1b6e06ce39d950ae5a636c32231620de",
+      "included_local_edit": false
+    },
+    "gist_fp16_build.yaml": {
+      "source_path": "tools/core/bench/config/gist_fp16_build.yaml",
+      "sha256": "19027ba60ee59ba1f6bb49ca2359a574345cb21d1f360c967a4da1903d68ce76",
+      "source_head_sha256": "19027ba60ee59ba1f6bb49ca2359a574345cb21d1f360c967a4da1903d68ce76",
+      "included_local_edit": false
+    },
+    "gist_fp16_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/gist_fp16_recall_bench.yaml",
+      "sha256": "85abee6231ececd9e432ebd89578171fbf1b846fbe38a8e14465c1f2d655fc95",
+      "source_head_sha256": "85abee6231ececd9e432ebd89578171fbf1b846fbe38a8e14465c1f2d655fc95",
+      "included_local_edit": false
+    },
+    "gist_fp32_build.yaml": {
+      "source_path": "tools/core/bench/config/gist_fp32_build.yaml",
+      "sha256": "8714ac1dc260e3cfc9d0235dd0e2041bf6cfcf629265e988e0080a262e201b87",
+      "source_head_sha256": "8714ac1dc260e3cfc9d0235dd0e2041bf6cfcf629265e988e0080a262e201b87",
+      "included_local_edit": false
+    },
+    "gist_fp32_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/gist_fp32_recall_bench.yaml",
+      "sha256": "58bad6b4111d2705286b8213ebd17a7512052fd68ea5748396eb2633406b3da6",
+      "source_head_sha256": "58bad6b4111d2705286b8213ebd17a7512052fd68ea5748396eb2633406b3da6",
+      "included_local_edit": false
+    },
+    "gist_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/gist_recall_bench.yaml",
+      "sha256": "30b4369fbb8d0380a45b580d86cf8596819bef47b842119cbc7a6d8267c586c0",
+      "source_head_sha256": "30b4369fbb8d0380a45b580d86cf8596819bef47b842119cbc7a6d8267c586c0",
+      "included_local_edit": false
+    },
+    "glove_fp32_build.yaml": {
+      "source_path": "tools/core/bench/config/glove_fp32_build.yaml",
+      "sha256": "2198f8b6b0dd1a85297ea84d0e0a9fda3ed3f43d963fe50bf2d5a1b523a65c13",
+      "source_head_sha256": "723d4635526fa6691e6cd4117f7c721089f599d6dce31c2188781ef875164030",
+      "included_local_edit": true
+    },
+    "glove_fp32_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/glove_fp32_recall_bench.yaml",
+      "sha256": "a54fba04b0ebd5c95f151b2f6fe3fca7c6ecabd7997b78565ff07545b70decf2",
+      "source_head_sha256": "be2f4b08665eacb706143f4721be96b77e4b4bade69853e68918134caa7595af",
+      "included_local_edit": true
+    },
+    "glove_fp32_recall_sweep.yaml": {
+      "source_path": "tools/core/bench/config/glove_fp32_recall_sweep.yaml",
+      "sha256": "d54d3439cad589edba221c1eb5c91ca0361667f3089f39f11663e23cc5e44b42",
+      "source_head_sha256": "9bb2b7b1031153e654345e7778205bfd7e99ffc31ac78b3ea7c71e86f3e75fdd",
+      "included_local_edit": true
+    },
+    "sift_fp32_base_build.yaml": {
+      "source_path": "tools/core/bench/config/sift_fp32_base_build.yaml",
+      "sha256": "3c417eb190f67326abeaef7d95a22979eaf1bd5f585fb698a84dfd5a0ef1ddbb",
+      "source_head_sha256": "3c417eb190f67326abeaef7d95a22979eaf1bd5f585fb698a84dfd5a0ef1ddbb",
+      "included_local_edit": false
+    },
+    "sift_fp32_recall_bench.yaml": {
+      "source_path": "tools/core/bench/config/sift_fp32_recall_bench.yaml",
+      "sha256": "0c896f704df064c65e9ae2dbdb64b3f0728532333cc5568abdf8b670f3af231d",
+      "source_head_sha256": "0c896f704df064c65e9ae2dbdb64b3f0728532333cc5568abdf8b670f3af231d",
+      "included_local_edit": false
+    },
+    "sift_fp32_v1_build.yaml": {
+      "source_path": "tools/core/bench/config/sift_fp32_v1_build.yaml",
+      "sha256": "b28dbf86307e86bb4fb4cc565f9809b2947bec62a3122a5421f48e66a83c52d5",
+      "source_head_sha256": "b28dbf86307e86bb4fb4cc565f9809b2947bec62a3122a5421f48e66a83c52d5",
+      "included_local_edit": false
+    },
+    "sift_fp32_v2_build.yaml": {
+      "source_path": "tools/core/bench/config/sift_fp32_v2_build.yaml",
+      "sha256": "8efb9a8dddb118ff28c108cd8e7b7947e3ce694a94a5b69761be056ffc456a45",
+      "source_head_sha256": "8efb9a8dddb118ff28c108cd8e7b7947e3ce694a94a5b69761be056ffc456a45",
+      "included_local_edit": false
+    }
+  }
+}

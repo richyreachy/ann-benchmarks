@@ -36,7 +36,7 @@
       "MaxNeighbors": 64,
       "RotationViews": 2,
       "Codec": {
-        "Type": "native"
+        "Type": "rabitq"
       }
     },
     "router": {

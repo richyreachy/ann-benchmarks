@@ -66,7 +66,7 @@ For GIST/GloVe use `--dataset gist-960-euclidean` / `glove-100-angular`.
 verifies the complete training corpus and index hashes. Missing index environment
 variables fail before loading. The executable presets live here:
 
-- [SIFT](configs/g9i/sift.json): M32/400, native, two views.
+- [SIFT](configs/g9i/sift.json): M32/400, RaBitQ, two views.
 - [GIST](configs/g9i/gist.json): M50/500, low_rank, Gaussian block8/rank8, one view.
 - [GloVe](configs/g9i/glove.json): M64/800, low_rank, Gaussian block4/rank8, two views.
 
@@ -75,6 +75,11 @@ To save resolved copies in a new run, use:
 ```bash
 "$PYTHON" "$ANN/scripts/prepare_zvec_qg_profiles.py" --output "$RUN/profiles"
 ```
+
+`rabitq` is the explicit name for the codec previously called `native`: it
+uses RaBitQ neighbor quantization with this implementation's rotation/views.
+The C++ builder accepts both spellings; existing index bytes and historical
+measurement labels are unchanged. `global` and `low_rank` remain distinct codecs.
 
 The adapter also accepts an explicit profile path in place of `g9i` for
 controlled experiments. Construction metadata describes the existing artifacts;
