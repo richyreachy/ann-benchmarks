@@ -1,0 +1,21 @@
+float:
+  euclidean:
+    - &qg
+      name: zvec_qg
+      module: ann_benchmarks.algorithms.zvec_qg
+      constructor: ZvecQuantizedGraph
+      docker_tag: ann-benchmarks-zvec_qg
+      base_args: ['@metric', '@dimension']
+      run_groups:
+        n64:
+          args: ['euclidean-n64']
+          query_args: [[0, 1, 2, 3, 4, 5, 6]]
+  angular:
+    - <<: *qg
+      run_groups:
+        n32:
+          args: ['glove-n32.json']
+          query_args: [[0, 1, 2]]
+        n64:
+          args: ['glove-n64.json']
+          query_args: [[0, 1, 2, 3]]
