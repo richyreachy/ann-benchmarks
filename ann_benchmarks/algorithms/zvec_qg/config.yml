@@ -17,5 +17,5 @@ float:
           args: ['glove-n32.json']
           query_args: [[0, 1, 2]]
         n64:
-          args: ['glove-n64.json']
+          args: ['glove-n64-gaussian.json']
           query_args: [[0, 1, 2, 3]]
