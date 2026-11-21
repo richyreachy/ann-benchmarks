@@ -1,6 +1,6 @@
 float:
   any:
-  - base_args: ['@metric', '@dimension', 'g9i-succinct', '${ZVEC_QG_ARTIFACT}']
+  - base_args: ['@metric', '@dimension', 'g9i']
     constructor: ZvecQuantizedGraph
     disabled: false
     docker_tag: ann-benchmarks-zvec_qg

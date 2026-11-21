@@ -1,14 +1,13 @@
-"""g9i succinct FP32 adapter for ANN-Benchmarks (--local --algorithm zvec_qg).
+"""Run with an installed zvec exposing the public QuantizedGraph API.
 
-Set ZVEC_QG_ARTIFACT to the matching _independent_qg runtime manifest.
-fit builds from database rows. To replay the recommended frozen graphs, set
-ZVEC_QG_{SIFT,GIST,GLOVE}_INDEX to their respective five-file snapshot prefixes.
+Use run.py --local --algorithm zvec_qg. By default fit builds from FP32 rows.
+For snapshot replay set ZVEC_QG_{SIFT,GIST,GLOVE}_INDEX to the matching prefix.
 """
 
 import hashlib
-import importlib.util
 import json
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -51,25 +50,18 @@ def load_profile(profile, metric, dimension):
 
 
 class ZvecQuantizedGraph(BaseANN):
-    def __init__(self, metric, dimension, profile, artifact):
+    def __init__(self, metric, dimension, profile):
+        import zvec
+
         self.profile = load_profile(profile, metric, dimension)
-        self.artifact = read_config(artifact)
+        self.metric = {"angular": "cosine", "euclidean": "l2"}[metric]
+        self.graph_type = zvec.QuantizedGraph
+        if not self.graph_type.supported():
+            raise RuntimeError("This zvec build or CPU does not support QuantizedGraph")
+        self.runtime_sha256 = digest(sys.modules[self.graph_type.__module__].__file__)
+        self.zvec_version = zvec.__version__
         self.index = None
-        self.name = "zvec_qg succinct " + self.profile["dataset"]
-        for key in ("source_commit", "bridge_sha256", "options_sha256"):
-            if self.artifact.get(key) != self.profile[key]:
-                raise ValueError("Succinct runtime differs from the preset: " + key)
-        module = "_independent_qg"
-        extension = self.artifact["extension"]
-        hashes = self.artifact["runtime_sha256"]
-        if self.artifact["module"] != module or extension not in hashes:
-            raise ValueError("Expected a fingerprinted independent QG extension")
-        for path, expected in hashes.items():
-            if digest(path) != expected:
-                raise ValueError("Runtime fingerprint mismatch: " + path)
-        spec = importlib.util.spec_from_file_location(module, extension)
-        self.core = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(self.core)
+        self.name = "zvec_qg " + self.profile["dataset"]
 
     def fit(self, X):
         if self.index is not None:
@@ -79,10 +71,11 @@ class ZvecQuantizedGraph(BaseANN):
         if hashlib.sha256(memoryview(X)).hexdigest() != self.profile["train_sha256"]:
             raise ValueError("Training corpus fingerprint mismatch")
 
-        cosine = self.profile["metric"] == "angular"
         prefix = self.profile["index_path"]
         if not prefix:
-            self.index = self.core.Index(X, cosine, json.dumps(self.profile))
+            self.index = self.graph_type.build(
+                X, metric=self.metric, options=self.profile["build"], page_params=self.profile["page_params"]
+            )
             return
         parts = self.profile["snapshot_sha256"]
         if set(parts) != {".vectors", ".offsets", ".edges", ".router", ".qg"}:
@@ -90,14 +83,18 @@ class ZvecQuantizedGraph(BaseANN):
         for ext, expected in parts.items():
             if digest(prefix + ext) != expected:
                 raise ValueError("Snapshot fingerprint mismatch: " + prefix + ext)
-        self.index = self.core.Index(prefix, len(X), X.shape[1], cosine,
-                                     json.dumps(self.profile["page_params"]))
+        self.index = self.graph_type.open(
+            prefix, count=len(X), dimension=X.shape[1], metric=self.metric, page_params=self.profile["page_params"]
+        )
 
     def set_query_arguments(self, setting):
         if self.index is None:
             raise RuntimeError("Fit the index before configuring queries")
+        if isinstance(setting, dict):
+            self.index.configure(setting)
+            return
         if type(setting) is not int or not 0 <= setting < len(self.profile["settings"]):
-            raise ValueError("Expected a recommended query setting index")
+            raise ValueError("Expected a query setting index or options dictionary")
         self.index.configure(self.profile["settings"][setting]["options"])
 
     def query(self, q, n):
@@ -106,9 +103,9 @@ class ZvecQuantizedGraph(BaseANN):
     def get_additional(self):
         prefix = self.profile["index_path"]
         metadata = {
-            "source_commit": self.artifact["source_commit"],
-            "runtime_sha256": self.artifact["runtime_sha256"][self.artifact["extension"]],
-            "entry": "QuantizedGraphIndex",
+            "zvec_version": self.zvec_version,
+            "runtime_sha256": self.runtime_sha256,
+            "entry": "zvec.QuantizedGraph",
             "base_graph": "independent",
             "fit_mode": "load" if prefix else "build",
             "query_threads": 1,

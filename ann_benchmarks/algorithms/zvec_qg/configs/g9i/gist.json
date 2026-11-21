@@ -75,8 +75,5 @@
         "uncertainty_bonus": 0
       }
     }
-  ],
-  "source_commit": "1551e0137f5d6594d4c33778492a818322453c0e",
-  "bridge_sha256": "9c7fe8be3a57baaaa4951193799dc38409ccdcaaa18cb76f18230b0527af0786",
-  "options_sha256": "3ff1f9fe64d8a1e71387a2530ba2da148867794665fdc67ee728220fe9b3758a"
+  ]
 }
