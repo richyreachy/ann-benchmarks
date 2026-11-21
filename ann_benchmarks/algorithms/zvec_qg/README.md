@@ -1,157 +1,65 @@
-# Zvec QG on c7ibench
+# Zvec QG on r7i
 
-[Full-query and CLI validation](VALIDATION.md)
-
-Select `--local --algorithm zvec_qg`. This uses the independent
-`QuantizedGraphIndex` / `QuantizedGraphQuery` API. The owned FP32 CSR provider,
-ID mapping, exact distance callback and new QG snapshots are those validated in
-the r7i native campaign. No HNSW search or retired QG dispatcher is called.
-
-Like g9ibench, runnable presets are colocated with the adapter:
-
-- `configs/r7i/{sift,gist,glove}.json`: succinct, default.
-- `configs/r7i-exploration/{sift,gist,glove}.json`: exploration.
-
-Settings 0–6 correspond to recall floors 30%, 50%, 70%, 85%, 90%, 95%, 99%.
-These are measured native-campaign winners; a floor is not an exact recall.
-GloVe switches n32/n64 QG snapshots outside the query timer. Encoding and router
-rotation views agree, and every corpus/provider/snapshot is fingerprint checked.
-All search keys use the new names, including explicit capacity and scan_limit.
-The consistency checker ties presets to archived winning parameters and artifacts.
-
-## Ice Lake CPU0 GloVe settings
-
-For the succinct M64/800 provider with the block4 low-rank snapshot, use the
-[recommended CPU0 GloVe query preset](configs/r7i-cpu0/glove.json) and the
-[CPU0 replay commands](validation/cpu0-icelake-20261119/README.md#glove-query-presets).
-The seven recommended settings cover 30% through 99% recall. The default r7i CLI
-preset above uses its own CSR provider and snapshot family.
-
-## Build the adapter
-
-Use Python with numpy, h5py, pybind11, PyYAML and the ANN-Benchmarks dependencies.
-Supply the previously built and validated Zvec source tree. The build script
-checks the measured source revision and native executable fingerprint, derives
-compiler/link options from its CMake/Ninja build, freshly compiles the bridge,
-and records all linked library fingerprints. Core changes require new validation.
-The existing native build uses GCC 11.4, Release `-O3 -DNDEBUG -march=icelake-server`.
+Install the native Zvec wheel into the same Python environment as ANN-Benchmarks.
+Both the succinct source at `685c21eb` and exploration at `49ee8f73` expose the required interface.
+Use a separate environment for each wheel. Set `ZVEC_WHEEL` to the wheel file path, then run
+these commands from the ANN-Benchmarks checkout.
 
 ```bash
-ANN=/path/to/c7ibench
-BENCH_ROOT=/path/to/ann-benchmarks-with-data
-PYTHON="$BENCH_ROOT/.venv/bin/python"
-SOURCE=/path/to/r7i-new-api-succinct
-RUN=/new/path/ann-qg-run
-export PATH="$BENCH_ROOT/.venv/bin:$PATH"
-cd "$ANN"
-"$PYTHON" scripts/build_zvec_qg.py --source "$SOURCE" \
-  --variant succinct --output "$RUN/runtime"
-export ZVEC_QG_ARTIFACT="$RUN/runtime/artifact.json"
-# Directory containing sift/, gist/ and glove/ provider files and new snapshots.
-export ZVEC_QG_INDEX_ROOT="$BENCH_ROOT/results/r7i-new-api-20261119/succinct"
-export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
-export QG_THP_POLICY=prepare
-unset QG_THP_MIN_COVERAGE
-"$PYTHON" scripts/prepare_zvec_qg_profiles.py --platform r7i --output "$RUN/profiles"
+python -m pip install "$ZVEC_WHEEL"
+python -c 'import zvec; print(zvec.__version__, zvec.QuantizedGraph.supported())'
+for dataset in sift-128-euclidean gist-960-euclidean glove-100-angular; do
+    python run.py --local --algorithm zvec_qg --dataset "$dataset" --parallelism 1 --runs 5
+done
 ```
 
-To reproduce missing native providers/snapshots, use the complete build, export,
-QG training and measurement commands in
-[`benchmark-configs/r7i-new-api/reproduce.sh`](../../../benchmark-configs/r7i-new-api/reproduce.sh).
-Large data, indexes, shared libraries and raw results are not committed to Git.
-The bridge is load-only: `fit` verifies the full training corpus and files, owns
-the provider arrays and loads the first QG snapshot. ANN's build time is therefore
-validation/load time, not graph construction. The source's native build entry
-remains available for actual `QuantizedGraphBuildOptions` training and snapshots.
+The adapter passes the original FP32 training matrix to `zvec.QuantizedGraph.build`.
+Each run group builds its own graph. Each query group calls `configure` once and
+each timed ANN query calls `search(q, 10)`. The wheel handles angular normalization.
+The default recommended presets in `configs/r7i-native-builder/` cover recall floors
+30%, 50%, 70%, 85%, 90%, 95% and 99%. SIFT and GIST use N64 throughout.
+GloVe uses N32 for 30–70% and N64 for 85–99%. Each preset specifies topology,
+encoding, router training, page policy and search options. Actual recall is measured.
 
-## Validate and run
+For an exploration replay on the test branch, install the exploration wheel and select
+its corresponding presets before running the same commands.
 
 ```bash
-"$PYTHON" scripts/validate_zvec_qg.py --artifact "$ZVEC_QG_ARTIFACT" \
-  --data "$BENCH_ROOT/data" --variant succinct --output "$RUN/correctness"
-mkdir -p "$RUN/cli"
-ln -s "$BENCH_ROOT/data" "$RUN/cli/data"
-ln -s "$ANN/logging.conf" "$RUN/cli/logging.conf"
-cd "$RUN/cli"
-numactl --physcpubind=54 --membind=0 "$PYTHON" "$ANN/run.py" \
-  --local --algorithm zvec_qg --definitions "$RUN/profiles/definitions" \
-  --dataset sift-128-euclidean --parallelism 1 --runs 5
+export ZVEC_QG_PRESET_DIR="$PWD/ann_benchmarks/algorithms/zvec_qg/configs/r7i-native-builder-exploration"
 ```
 
-For GIST/GloVe select `gist-960-euclidean` / `glove-100-angular`. Run datasets
-serially. CPU 54 has SMT sibling 55, both on NUMA node 0. Avoid other benchmarks,
-builds and compilation during formal timings; the native campaign's `isolate`
-wrapper can pause and restore the existing controllers/containers around a command.
-Keep its restoration manifest and restore after failures. Use a fresh run directory
-because ANN's standard CLI skips existing results by default.
+Use separate ANN output working directories for independent measurements of two wheels.
+The ANN runner skips result files with a matching definition and query group.
+When running outside the checkout, link the dataset directory and logging.conf into
+the run directory, and pass `--definitions "$ANN/ann_benchmarks/algorithms"` to
+`python "$ANN/run.py"`, where `ANN` is the absolute checkout path.
 
-For exploration build a separate runtime with `--variant exploration`, set
-`ZVEC_QG_INDEX_ROOT` to its separate artifact directory, and prepare profiles with
-`--platform r7i-exploration`. Pass `--variant exploration` to the correctness script.
-The generated definitions select that variant under the same `zvec_qg` name.
-Keep variant result directories separate; the adapter refuses mismatched runtimes.
+## Replay a measured graph
 
-## Measurement boundary
+Leave the index environment variables unset for fresh builds. To replay, set
+`ZVEC_QG_SIFT_INDEX`, `ZVEC_QG_GIST_INDEX`, `ZVEC_QG_GLOVE_N32_INDEX`
+or `ZVEC_QG_GLOVE_N64_INDEX` to that profile's snapshot prefix. For example,
+prefix `/bench/sift/index` identifies `index.vectors`, `index.edges`,
+`index.offsets`, `index.router` and `index.qg` in `/bench/sift/`.
+The adapter verifies the corpus and all five files against the preset before
+calling `zvec.QuantizedGraph.open`. The result attributes include the entry,
+build/load mode, wheel version and native extension SHA-256.
 
-Python query timings include input validation/conversion, FP64 cosine query
-normalization once, the native search and exact callbacks, sorting/ID mapping,
-and Python result-array materialization. Original cosine provider vectors are
-already normalized and are not normalized again. Independent distance checking
-by ANN's runner is outside query timing. Batch/concurrent query calls are rejected.
-
-ANN's CLI reports best-of-runs and does not implement the native campaign's full
-warmup plus three repetitions of five rounds. Its output must be labeled separately
-from the native median-of-three-best-of-five QPS. A CLI integration test or the
-correctness script is not a new formal performance campaign.
-
-The correctness script uses all train rows and all queries, two query passes per
-setting, independent FP64 distance checks, distance-tolerance and strict ID recalls,
-QG expansion evidence, and bitwise comparison against archived native IDs/scores.
-Per-query artifacts are written outside Git; the small validation manifest is
-archived alongside this adapter. It makes no claim about new Python-entry QPS.
-
-ANN's incremental memory field includes the first snapshot only; GloVe can load a
-different snapshot per setting. Additional result fields identify the active
-profile and total process RSS. The adapter owns its provider; ANN retains the
-training corpus for distance verification, so total RSS includes both allocations.
-
-The historical native measurement archive under `benchmark-configs/r7i-new-api/`
-is unchanged. No g9i timing or historical Python timing is relabeled as this run.
-
-## Formal Python-entry measurements
-
-[Completed 2026-11-19 results, per-round evidence and historical comparison](validation/formal-20261119/README.md).
-
-[Corrected vendor archive coverage and new Huawei GIST confirmation](validation/huawei-gist-20261119/README.md).
-
-`scripts/measure_zvec_qg.py` calls the unmodified ANN `run_individual_query`
-function once per round, preserving every round instead of retaining only the
-last round's neighbors. Each setting gets one complete runner warmup and five
-measured rounds. Three fresh Python processes per dataset reload the same index;
-the primary QPS is the median of the three best-of-five QPS values. It checks
-the full dataset fingerprint, IDs, independent distances and both recall metrics
-each round. The first repetition's best-of-five is also reported separately for
-comparison with historical ANN summaries; it is not the highest of 15 rounds.
-
-With the environment above and `SOURCE` pointing to succinct:
+The correctness check exercises all seven target floors twice on the full query set,
+checks valid unique top-10 IDs, and records ordered-ID digests and both recall definitions.
 
 ```bash
-"$PYTHON" "$SOURCE/tools/core/bench/qg_bench.py" isolate \
-  --manifest "$RUN/isolation.json" -- \
-  numactl --physcpubind=54 --membind=0 "$PYTHON" "$ANN/scripts/measure_zvec_qg.py" \
-    --artifact "$ZVEC_QG_ARTIFACT" --data "$BENCH_ROOT/data" \
-    --source "$SOURCE" --output "$RUN/measurements"
-"$PYTHON" "$ANN/scripts/report_zvec_qg.py" --run "$RUN" --bench-root "$BENCH_ROOT"
+python scripts/validate_zvec_qg.py data/glove-100-angular.hdf5 --output glove-check.json
 ```
 
-The isolation wrapper restores stopped controllers and paused containers on
-completion or failure. After an external hard kill, use its `restore --manifest`
-command. Interrupted background timings must not enter future comparisons.
-The report audits all 315 raw HDF5 files and snapshots only valid, already-finished
-Huawei/01AI results predating this campaign. It includes both the standard results
-tree and the dedicated `comprehensive-icelake-20261116/measurements/baseline`
-archive, validating the latter's JSONL provenance and ID hashes. It does not rerun these algorithms.
-Their historical best-of-five values and background conditions remain distinct
-from the new isolated median-of-three results.
+The [November 19 report](VALIDATION.md) and archived configurations document the earlier
+C++ bridge. Use test revision `80f980c` to reproduce those runs with their original scripts.
 
-The [CPU0 Ice Lake comparison](validation/cpu0-icelake-20261119/README.md) uses the November 19 succinct source and a rebuilt GloVe M64/800 low-rank graph. It records local results at the supplied reference's actual recall values and includes frozen configurations, raw-run fingerprints and a replay entry point.
+## Native wheel verification on 2026-11-21
+
+The succinct and exploration wheels above replayed all seven registered settings
+per dataset on SIFT (10,000 queries), GIST (1,000) and GloVe (10,000).
+All 42 ordered top-10 ID digests matched the corresponding native run and each
+setting reached its ANN recall floor. A separate succinct `run.py --local` run
+built SIFT from its full training matrix and wrote all seven HDF5 results.
+These runs verified the integration and did not produce a new formal QPS ranking.

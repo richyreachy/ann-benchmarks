@@ -4,7 +4,7 @@ float:
       module: ann_benchmarks.algorithms.zvec_symqg
       constructor: ZvecSymQG
       docker_tag: ann-benchmarks-zvec-symqg
-      disabled: false
+      disabled: true
       base_args: ['@metric', '@dimension', 0]
       run_groups:
         best-practice:
