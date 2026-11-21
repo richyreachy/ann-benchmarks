@@ -3,6 +3,7 @@
 Optional snapshot prefixes: ZVEC_QG_SIFT_INDEX, ZVEC_QG_GIST_INDEX,
 ZVEC_QG_GLOVE_N32_INDEX and ZVEC_QG_GLOVE_N64_INDEX. Each prefix identifies
 .vectors, .offsets, .edges, .router and .qg from the same independent build.
+Settings list overrides to the common r7i search defaults below.
 """
 
 import hashlib
@@ -14,6 +15,9 @@ from pathlib import Path
 import numpy as np
 
 from ..base.module import BaseANN
+
+# Pin the measured defaults even when a future native wheel changes its own.
+SEARCH_DEFAULTS = {"capacity": 128, "route_beam": 1, "uncertainty_bonus": 0.0}
 
 
 def digest(path):
@@ -77,7 +81,7 @@ class ZvecQuantizedGraph(BaseANN):
         settings = self.profile["settings"]
         if type(setting) is not int or not 0 <= setting < len(settings):
             raise ValueError("Expected a query setting index for this graph")
-        self.index.configure(settings[setting]["options"])
+        self.index.configure({**SEARCH_DEFAULTS, **settings[setting]["options"]})
         self.setting = setting
 
     def query(self, q, n):
