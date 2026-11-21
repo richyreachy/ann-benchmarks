@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Resolve the checked-in g9i presets to a new run directory.
 
-Set ZVEC_QG_SIFT_INDEX, ZVEC_QG_GIST_INDEX and ZVEC_QG_GLOVE_INDEX first.
+Optional ZVEC_QG_*_INDEX values select independent snapshot prefixes.
 No graph is built and no query parameter is tuned by this script.
 """
 
@@ -19,10 +19,14 @@ def main():
     profiles = {}
     for path in sorted(presets.glob("*.json")):
         profile = json.loads(path.read_text())
-        index = os.path.expandvars(profile["index_path"])
-        if "$" in index or not Path(index).is_file():
-            raise SystemExit("Set an existing index path: " + profile["index_path"])
-        profile["index_path"] = str(Path(index).resolve())
+        variable = profile["index_path"][2:-1]
+        prefix = os.environ.get(variable)
+        if prefix:
+            prefix = str(Path(prefix).resolve())
+            for suffix in profile["snapshot_sha256"]:
+                if not Path(prefix + suffix).is_file():
+                    raise SystemExit("Missing snapshot file: " + prefix + suffix)
+        profile["index_path"] = prefix or ""
         profiles[path.name] = profile
     args.output.mkdir(parents=True, exist_ok=False)
     for name, profile in profiles.items():

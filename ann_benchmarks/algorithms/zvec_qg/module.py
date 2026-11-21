@@ -1,9 +1,13 @@
-"""Independent QG queries on an immutable, fingerprinted legacy index container."""
+"""Run with an installed zvec exposing the public QuantizedGraph API.
+
+Use run.py --local --algorithm zvec_qg. By default fit builds from FP32 rows.
+For snapshot replay set ZVEC_QG_{SIFT,GIST,GLOVE}_INDEX to the matching prefix.
+"""
 
 import hashlib
-import importlib.util
 import json
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -14,7 +18,7 @@ from ..base.module import BaseANN
 def digest(path):
     result = hashlib.sha256()
     with Path(path).open("rb") as stream:
-        for block in iter(lambda: stream.read(4 * 1024 * 1024), b""):
+        for block in iter(lambda: stream.read(4 << 20), b""):
             result.update(block)
     return result.hexdigest()
 
@@ -24,80 +28,93 @@ def read_config(path):
 
 
 def load_profile(profile, metric, dimension):
-    if profile == "g9i":
+    if profile in ("g9i", "g9i-independent", "g9i-succinct"):
         presets = Path(__file__).parent / "configs" / "g9i"
-        matches = [read_config(path) for path in sorted(presets.glob("*.json"))]
-        matches = [item for item in matches
-                   if item["metric"] == metric and item["dimension"] == dimension]
-        if len(matches) != 1:
-            raise ValueError("No unique g9i preset for this metric/dimension")
-        result = matches[0]
+        candidates = [read_config(path) for path in sorted(presets.glob("*.json"))]
     else:
-        result = read_config(profile)
-    result["index_path"] = os.path.expandvars(result["index_path"])
-    if "$" in result["index_path"]:
-        raise ValueError("Set the index environment variable: " + result["index_path"])
-    return result
+        candidates = [read_config(profile)]
+    matches = [p for p in candidates if p["metric"] == metric and p["dimension"] == dimension]
+    if len(matches) != 1:
+        raise ValueError("Expected one g9i preset for this metric and dimension")
+    preset = matches[0]
+    if preset["graph_format"] != "independent-fp32-v1":
+        raise ValueError("Expected an independent FP32 graph")
+    prefix = preset.get("index_path", "")
+    if prefix.startswith("${") and prefix.endswith("}"):
+        prefix = os.environ.get(prefix[2:-1], "")
+    prefix = os.path.expandvars(prefix)
+    if "$" in prefix:
+        raise ValueError("Unresolved snapshot prefix: " + prefix)
+    preset["index_path"] = prefix
+    return preset
 
 
 class ZvecQuantizedGraph(BaseANN):
-    """Load-only adapter; fit verifies the supplied corpus rather than rebuilding."""
+    def __init__(self, metric, dimension, profile):
+        import zvec
 
-    def __init__(self, metric, dimension, profile, artifact):
         self.profile = load_profile(profile, metric, dimension)
-        self.artifact = read_config(artifact)
+        self.metric = {"angular": "cosine", "euclidean": "l2"}[metric]
+        self.graph_type = zvec.QuantizedGraph
+        if not self.graph_type.supported():
+            raise RuntimeError("This zvec build or CPU does not support QuantizedGraph")
+        self.runtime_sha256 = digest(sys.modules[self.graph_type.__module__].__file__)
+        self.zvec_version = zvec.__version__
         self.index = None
-        if metric != self.profile["metric"] or dimension != self.profile["dimension"]:
-            raise ValueError("Dataset metric/dimension does not match the frozen profile")
-        self.dimension = dimension
         self.name = "zvec_qg " + self.profile["dataset"]
-        for path, expected in self.artifact["runtime_sha256"].items():
-            if digest(path) != expected:
-                raise ValueError("Runtime fingerprint mismatch: " + path)
-        spec = importlib.util.spec_from_file_location("_direct_core", self.artifact["extension"])
-        self.core = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(self.core)
 
     def fit(self, X):
         if self.index is not None:
-            raise RuntimeError("Close the existing index before loading another")
-        if X.dtype != np.float32 or not X.flags.c_contiguous:
-            raise ValueError("The frozen corpus must be contiguous float32")
-        if list(X.shape) != self.profile["train_shape"]:
-            raise ValueError("Training corpus shape mismatch")
+            raise RuntimeError("Close the current index before fitting again")
+        if X.dtype != np.float32 or not X.flags.c_contiguous or list(X.shape) != self.profile["train_shape"]:
+            raise ValueError("Expected the full contiguous FP32 training corpus")
         if hashlib.sha256(memoryview(X)).hexdigest() != self.profile["train_sha256"]:
             raise ValueError("Training corpus fingerprint mismatch")
-        path = self.profile["index_path"]
-        if digest(path) != self.profile["index_sha256"]:
-            raise ValueError("Index fingerprint mismatch: " + path)
-        self.index = self.core.Index(path, json.dumps(self.profile["storage"]), self.dimension)
 
-    def set_query_arguments(self, options):
-        if isinstance(options, int):
-            if options < 0 or options >= len(self.profile["settings"]):
-                raise ValueError("Query setting index is out of range")
-            options = self.profile["settings"][options]["options"]
-        required = {"capacity", "margin", "bucket_width", "max_expansions", "route_beam", "uncertainty_bonus"}
-        if set(options) != required or not isinstance(options["capacity"], int) or options["capacity"] <= 0:
-            raise ValueError("Expected a positive capacity and the five native search options")
+        prefix = self.profile["index_path"]
+        if not prefix:
+            self.index = self.graph_type.build(
+                X, metric=self.metric, options=self.profile["build"], page_params=self.profile["page_params"]
+            )
+            return
+        parts = self.profile["snapshot_sha256"]
+        if set(parts) != {".vectors", ".offsets", ".edges", ".router", ".qg"}:
+            raise ValueError("Incomplete independent snapshot manifest")
+        for ext, expected in parts.items():
+            if digest(prefix + ext) != expected:
+                raise ValueError("Snapshot fingerprint mismatch: " + prefix + ext)
+        self.index = self.graph_type.open(
+            prefix, count=len(X), dimension=X.shape[1], metric=self.metric, page_params=self.profile["page_params"]
+        )
+
+    def set_query_arguments(self, setting):
         if self.index is None:
-            raise RuntimeError("Load the index before configuring queries")
-        # These names belong only to the private bridge parser. The bridge calls
-        # QuantizedGraphQuery directly; it never passes them to HNSW IndexFactory.
-        bridge = {"ef_search": options["capacity"]}
-        bridge.update({"quantized_graph_" + key: value for key, value in options.items() if key != "capacity"})
-        self.index.configure(json.dumps(bridge))
+            raise RuntimeError("Fit the index before configuring queries")
+        if isinstance(setting, dict):
+            self.index.configure(setting)
+            return
+        if type(setting) is not int or not 0 <= setting < len(self.profile["settings"]):
+            raise ValueError("Expected a query setting index or options dictionary")
+        self.index.configure(self.profile["settings"][setting]["options"])
 
     def query(self, q, n):
         return self.index.search(q, n)
 
     def get_additional(self):
-        return {"source_commit": self.artifact["source_commit"],
-                "entry": "QuantizedGraphIndex", "query_threads": 1,
-                "index_disk_bytes": Path(self.profile["index_path"]).stat().st_size,
-                "borrowed_corpus_bytes": 0}
+        prefix = self.profile["index_path"]
+        metadata = {
+            "zvec_version": self.zvec_version,
+            "runtime_sha256": self.runtime_sha256,
+            "entry": "zvec.QuantizedGraph",
+            "base_graph": "independent",
+            "fit_mode": "load" if prefix else "build",
+            "query_threads": 1,
+            "borrowed_corpus_bytes": 0,
+        }
+        if prefix:
+            metadata["index_disk_bytes"] = sum(Path(prefix + ext).stat().st_size
+                                               for ext in self.profile["snapshot_sha256"])
+        return metadata
 
     def done(self):
-        if self.index is not None:
-            self.index.close()
-            self.index = None
+        self.index = None

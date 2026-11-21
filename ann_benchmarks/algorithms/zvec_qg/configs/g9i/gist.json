@@ -8,48 +8,37 @@
   ],
   "train_sha256": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038",
   "index_path": "${ZVEC_QG_GIST_INDEX}",
-  "index_sha256": "d217519ed9acaa73821b5f37794321ba17e297831933f4cd0eac6b9269ae97c8",
-  "storage": {
-    "index_type": "kHNSW",
-    "data_type": "DT_FP32",
-    "metric_type": "kL2sq",
-    "dimension": 960,
-    "m": 50,
-    "ef_construction": 500,
-    "use_id_map": true,
-    "params": {
-      "proxima.quantized_graph.thp_policy": "require",
-      "proxima.quantized_graph.thp_min_coverage": 0.95,
-      "proxima.quantized_graph.thp_min_coverage_floor": 0.8
-    }
+  "graph_format": "independent-fp32-v1",
+  "snapshot_sha256": {
+    ".vectors": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038",
+    ".offsets": "68d6f4c1f06ca5e9e904ab8b7366dc12ea7f8779f6a3240da88d11552a2db0d5",
+    ".edges": "4a1374a4f21aea3431fcaa9ed4a1bce0932cf4c68d132d836a7b633bcafda3bc",
+    ".router": "7dfac1eb482a07a75c42f9e29a45a8f07e7310f48ce6bcd6688d9c75affeb12f",
+    ".qg": "45b6db559a2a4623bf765f8573d7d6d53a768a34e3151c64324226cd9502eacf"
   },
-  "construction_provenance": {
-    "index_bytes": 10219882656,
-    "graph": {
-      "m": 50,
-      "ef_construction": 500,
-      "data_type": "DT_FP32",
-      "dimension": 960
-    },
-    "quantized_graph": {
-      "Persist": true,
-      "MaxNeighbors": 64,
-      "ThreadCount": 8,
-      "Codec": {
-        "Type": "low_rank",
-        "BlockDimension": 8,
-        "Codebook": "gaussian",
-        "Rank": 8,
-        "TrainingSamples": 1024,
-        "CenterWeight": 1.0,
-        "Seed": 20261031
-      },
-      "RotationViews": 1
-    },
-    "router": {
-      "Anchors": 8192,
-      "ProjectedDimension": 256,
-      "Seed": 202610261259
+  "page_params": {
+    "proxima.quantized_graph.thp_policy": "require",
+    "proxima.quantized_graph.thp_min_coverage": 0.95,
+    "proxima.quantized_graph.thp_min_coverage_floor": 0.8
+  },
+  "build": {
+    "threads": 8,
+    "passes": 2,
+    "search_list_size": 200,
+    "seed": 20261120,
+    "router_anchors": 8192,
+    "router_dimension": 256,
+    "router_seed": 202610261259,
+    "encoding": {
+      "codec": "low_rank",
+      "max_neighbors": 64,
+      "rotation_views": 1,
+      "block_dimension": 8,
+      "rank": 8,
+      "codebook": "gaussian",
+      "training_samples": 1024,
+      "center_weight": 1.0,
+      "seed": 20261031
     }
   },
   "settings": [
@@ -57,9 +46,9 @@
       "target": 0.9,
       "options": {
         "capacity": 2048,
-        "margin": 0.04,
+        "margin": 0.030875,
         "bucket_width": 0.002,
-        "max_expansions": 256,
+        "max_expansions": 1024,
         "route_beam": 1,
         "uncertainty_bonus": 0
       }
@@ -68,9 +57,9 @@
       "target": 0.95,
       "options": {
         "capacity": 2048,
-        "margin": 0.06,
+        "margin": 0.04875,
         "bucket_width": 0.002,
-        "max_expansions": 256,
+        "max_expansions": 1024,
         "route_beam": 1,
         "uncertainty_bonus": 0
       }
@@ -79,13 +68,12 @@
       "target": 0.99,
       "options": {
         "capacity": 2048,
-        "margin": 0.12,
+        "margin": 0.0853125,
         "bucket_width": 0.002,
         "max_expansions": 512,
         "route_beam": 1,
         "uncertainty_bonus": 0
       }
     }
-  ],
-  "configuration_source": "g9i_native_validation_20261119/deployment_profiles/gist.json"
+  ]
 }
