@@ -12,8 +12,8 @@
     ".vectors": "499bce16280ef3d7f01c7118a320cccea59aad88d89a13628f1f7fc8401a4a72",
     ".edges": "b1ad2a85b8a633aabe424833365efbe1bb2d084fdf7ea926dccc28732b9dab8f",
     ".offsets": "decf6d0aa65bc93a5368cec32ec50b82ba837ebc7cbc24521f2d2d48eb4085b2",
-    ".qg": "26365b023ebdc55c69d1bbccc272900bba1526562f7a8f7f50e2b4034250272f",
-    ".router": "5c129110a38462d23c8a515428a2cbd7139c3bb71aee77e1294468f27f268038"
+    ".qg": "59e8a521d29d1a6e1b50dca607f550558251cf7f9a6c5a2a2f3490678e120f4f",
+    ".router": "22ec70c7af2d953e415c20a26fcd0d49bd473cbb275ec37d982c4f882d3fe7e1"
   },
   "page_params": {
     "proxima.quantized_graph.thp_policy": "prepare"
@@ -22,17 +22,17 @@
     "search_list_size": 400,
     "passes": 2,
     "seed": 20261120,
-    "threads": 32,
+    "threads": 8,
     "encoding": {
-      "codec": "rabitq",
+      "codec": "low_rank",
       "max_neighbors": 64,
-      "rotation_views": 2,
-      "codebook": "hadamard",
-      "block_dimension": 6,
+      "rotation_views": 1,
+      "block_dimension": 2,
       "rank": 8,
+      "codebook": "gaussian",
       "training_samples": 1024,
-      "seed": 20261031,
-      "center_weight": 1.0
+      "center_weight": 0.5,
+      "seed": 20261026
     },
     "router_anchors": 65536,
     "router_dimension": 64,
@@ -43,44 +43,44 @@
       "target": 0.85,
       "options": {
         "capacity": 2048,
-        "max_expansions": 192,
-        "margin": 0.034,
-        "bucket_width": 0.002,
-        "route_beam": 1,
-        "uncertainty_bonus": 0.0
+        "margin": 0.0698797,
+        "bucket_width": 0.0008,
+        "max_expansions": 1536,
+        "route_beam": 0,
+        "uncertainty_bonus": 0
       }
     },
     {
       "target": 0.9,
       "options": {
-        "capacity": 1024,
-        "max_expansions": 768,
-        "margin": 0.053,
-        "bucket_width": 0.004,
-        "route_beam": 1,
-        "uncertainty_bonus": 0.0
+        "capacity": 2048,
+        "margin": 0.07921875,
+        "bucket_width": 0.002,
+        "max_expansions": 1536,
+        "route_beam": 0,
+        "uncertainty_bonus": 0
       }
     },
     {
       "target": 0.95,
       "options": {
         "capacity": 2048,
-        "max_expansions": 576,
-        "margin": 0.08,
-        "bucket_width": 0.004,
-        "route_beam": 2,
-        "uncertainty_bonus": 0.0
+        "margin": 0.10957031250000002,
+        "bucket_width": 0.002,
+        "max_expansions": 1536,
+        "route_beam": 0,
+        "uncertainty_bonus": 0
       }
     },
     {
       "target": 0.99,
       "options": {
         "capacity": 2048,
+        "margin": 0.1538671875,
+        "bucket_width": 0.002,
         "max_expansions": 1536,
-        "margin": 0.121,
-        "bucket_width": 0.004,
-        "route_beam": 1,
-        "uncertainty_bonus": 0.0
+        "route_beam": 0,
+        "uncertainty_bonus": 0
       }
     }
   ]

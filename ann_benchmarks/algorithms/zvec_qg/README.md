@@ -1,7 +1,7 @@
 # Zvec QG on r7i
 
 Install the native Zvec wheel into the same Python environment as ANN-Benchmarks.
-Both the succinct source at `685c21eb` and exploration at `49ee8f73` expose the required interface.
+The GloVe N64 Gaussian preset was verified with succinct `b4d4c6e6` and exploration `0f11d208`. It requires support for two-dimensional Gaussian blocks.
 Use a separate environment for each wheel. Set `ZVEC_WHEEL` to the wheel file path, then run
 these commands from the ANN-Benchmarks checkout.
 
@@ -57,7 +57,7 @@ C++ bridge. Use test revision `80f980c` to reproduce those runs with their origi
 
 ## Native wheel verification on 2026-11-21
 
-The succinct and exploration wheels above replayed all seven registered settings
+The succinct `685c21eb` and exploration `49ee8f73` wheels replayed all seven registered settings
 per dataset on SIFT (10,000 queries), GIST (1,000) and GloVe (10,000).
 All 42 ordered top-10 ID digests matched the corresponding native run and each
 setting reached its ANN recall floor. A separate succinct `run.py --local` run
