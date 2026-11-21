@@ -1,51 +1,48 @@
 {
-  "schema_version": 2,
-  "engine": "QuantizedGraphIndex",
   "dataset": "gist-960-euclidean",
+  "metric": "euclidean",
   "dimension": 960,
-  "train_count": 1000000,
-  "query_count": 1000,
-  "precision": "FP32",
-  "metric": "l2sq",
-  "dataset_file": "data/gist-960-euclidean.hdf5",
-  "output_dir": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64",
-  "provider_prefix": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/provider",
-  "queries_file": "results/qg-builder-r7i-20261120/input/gist/queries.f32",
-  "provider_format": "csr-fp32-le-v1",
-  "id_convention": "internal row equals original HDF5 training row",
-  "profiles": {
-    "n64": {
-      "name": "n64",
-      "index_prefix": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/n64",
-      "encoding": {
-        "codec": "low_rank",
-        "max_neighbors": 64,
-        "threads": 32,
-        "rotation_views": 1,
-        "codebook": "gaussian",
-        "block_dimension": 8,
-        "rank": 8,
-        "training_samples": 1024,
-        "seed": 20261031,
-        "center_weight": 1.0
-      },
-      "router": {
-        "anchors": 8192,
-        "projected_dimension": 256,
-        "seed": 202610261259,
-        "rotation_views": 1
-      }
-    }
+  "train_shape": [
+    1000000,
+    960
+  ],
+  "train_sha256": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038",
+  "index_env": "ZVEC_QG_GIST_INDEX",
+  "snapshot_sha256": {
+    ".vectors": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038",
+    ".edges": "fdda909b704eace1fbc4372969fa7fc40585419ad4665dc8bf027c908cb4e4b5",
+    ".offsets": "5499d01d58cd987afb320dccdc9e1ab1dec2ee4b64b13c46887321f573e50c33",
+    ".qg": "a970f0b46604092c0af07aeb928bb3062c6c5ef217994eda3e8e4bc1cfc6d294",
+    ".router": "7dfac1eb482a07a75c42f9e29a45a8f07e7310f48ce6bcd6688d9c75affeb12f"
   },
-  "points": [
+  "page_params": {
+    "proxima.quantized_graph.thp_policy": "prepare"
+  },
+  "build": {
+    "search_list_size": 400,
+    "passes": 2,
+    "seed": 20261120,
+    "threads": 32,
+    "encoding": {
+      "codec": "low_rank",
+      "max_neighbors": 64,
+      "rotation_views": 1,
+      "codebook": "gaussian",
+      "block_dimension": 8,
+      "rank": 8,
+      "training_samples": 1024,
+      "seed": 20261031,
+      "center_weight": 1.0
+    },
+    "router_anchors": 8192,
+    "router_dimension": 256,
+    "router_seed": 202610261259
+  },
+  "settings": [
     {
-      "name": "recall-30",
-      "phase": "recommended",
       "target": 0.3,
-      "profile": "n64",
-      "capacity": 128,
-      "scan_limit": 0,
-      "search": {
+      "options": {
+        "capacity": 128,
         "bucket_width": 0.008,
         "margin": 1.0,
         "max_expansions": 10,
@@ -54,13 +51,9 @@
       }
     },
     {
-      "name": "recall-50",
-      "phase": "recommended",
       "target": 0.5,
-      "profile": "n64",
-      "capacity": 128,
-      "scan_limit": 0,
-      "search": {
+      "options": {
+        "capacity": 128,
         "bucket_width": 0.002,
         "margin": 0.002,
         "max_expansions": 20,
@@ -69,13 +62,9 @@
       }
     },
     {
-      "name": "recall-70",
-      "phase": "recommended",
       "target": 0.7,
-      "profile": "n64",
-      "capacity": 128,
-      "scan_limit": 0,
-      "search": {
+      "options": {
+        "capacity": 128,
         "bucket_width": 0.002,
         "margin": 0.0075,
         "max_expansions": 30,
@@ -84,13 +73,9 @@
       }
     },
     {
-      "name": "recall-85",
-      "phase": "recommended",
       "target": 0.85,
-      "profile": "n64",
-      "capacity": 2048,
-      "scan_limit": 0,
-      "search": {
+      "options": {
+        "capacity": 2048,
         "bucket_width": 0.002,
         "margin": 0.03,
         "max_expansions": 256,
@@ -99,13 +84,9 @@
       }
     },
     {
-      "name": "recall-90",
-      "phase": "recommended",
       "target": 0.9,
-      "profile": "n64",
-      "capacity": 2048,
-      "scan_limit": 0,
-      "search": {
+      "options": {
+        "capacity": 2048,
         "bucket_width": 0.002,
         "margin": 0.03,
         "max_expansions": 256,
@@ -114,13 +95,9 @@
       }
     },
     {
-      "name": "recall-95",
-      "phase": "recommended",
       "target": 0.95,
-      "profile": "n64",
-      "capacity": 2048,
-      "scan_limit": 0,
-      "search": {
+      "options": {
+        "capacity": 2048,
         "bucket_width": 0.002,
         "margin": 0.055,
         "max_expansions": 384,
@@ -129,88 +106,15 @@
       }
     },
     {
-      "name": "recall-99",
-      "phase": "recommended",
       "target": 0.99,
-      "profile": "n64",
-      "capacity": 2048,
-      "scan_limit": 0,
-      "search": {
+      "options": {
+        "capacity": 2048,
         "bucket_width": 0.002,
         "margin": 0.08,
         "max_expansions": 384,
         "route_beam": 1,
         "uncertainty_bonus": 0
       }
-    }
-  ],
-  "targets": [
-    0.3,
-    0.5,
-    0.7,
-    0.85,
-    0.9,
-    0.95,
-    0.99
-  ],
-  "protocol": {
-    "cpu": 54,
-    "smt_sibling": 55,
-    "numa_node": 0,
-    "threads": 1,
-    "topk": 10,
-    "warmup_rounds": 1,
-    "rounds": 5,
-    "repetitions": 3,
-    "ann_distance_tolerance": 0.001,
-    "timing": "native reset + QG search (including internal exact callback) + sort + external ID mapping + result buffer copy; excludes Python, input conversion, independent distance verification, file IO",
-    "aggregation": "median of 3 best-of-5 repetition QPS",
-    "same_index_reused": true
-  },
-  "training_file": "results/qg-builder-r7i-20261120/input/gist/train.f32",
-  "topology": {
-    "search_list_size": 400,
-    "passes": 2,
-    "seed": 20261120
-  },
-  "variant": "succinct",
-  "source_commit": "1551e0137f5d6594d4c33778492a818322453c0e",
-  "ann_metric": "euclidean",
-  "train_shape": [
-    1000000,
-    960
-  ],
-  "train_sha256": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038",
-  "files": [
-    {
-      "path": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/provider.vectors",
-      "bytes": 3840000000,
-      "sha256": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038"
-    },
-    {
-      "path": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/provider.ids",
-      "bytes": 8000000,
-      "sha256": "6f8f1531c1170336132e3a5cf9fde98aa28840393edd4387ab4d7c7e743586fb"
-    },
-    {
-      "path": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/provider.edges",
-      "bytes": 202768560,
-      "sha256": "fdda909b704eace1fbc4372969fa7fc40585419ad4665dc8bf027c908cb4e4b5"
-    },
-    {
-      "path": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/provider.offsets",
-      "bytes": 8000008,
-      "sha256": "5499d01d58cd987afb320dccdc9e1ab1dec2ee4b64b13c46887321f573e50c33"
-    },
-    {
-      "path": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/n64.qg",
-      "bytes": 5952037920,
-      "sha256": "a970f0b46604092c0af07aeb928bb3062c6c5ef217994eda3e8e4bc1cfc6d294"
-    },
-    {
-      "path": "results/qg-builder-r7i-20261120/runs/succinct/gist/n64/n64.router",
-      "bytes": 7143104,
-      "sha256": "7dfac1eb482a07a75c42f9e29a45a8f07e7310f48ce6bcd6688d9c75affeb12f"
     }
   ]
 }
