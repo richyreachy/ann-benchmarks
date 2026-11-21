@@ -1,0 +1,79 @@
+{
+  "dataset": "sift-128-euclidean",
+  "metric": "euclidean",
+  "dimension": 128,
+  "train_shape": [
+    1000000,
+    128
+  ],
+  "train_sha256": "ac8e11ed111b09e882bcf0ef1a77ebdd36c89f495bce8fd596603f69c35148e6",
+  "index_path": "${ZVEC_QG_SIFT_INDEX}",
+  "graph_format": "independent-fp32-v1",
+  "snapshot_sha256": {
+    ".vectors": "ac8e11ed111b09e882bcf0ef1a77ebdd36c89f495bce8fd596603f69c35148e6",
+    ".offsets": "5e1f7cbe24444b31a6953fc6e1ebe8fc75416ba5f529ccc1668b817eb383b453",
+    ".edges": "f9417f96973385554bb9e93562125b986a71c4c53866004136506caf4fea18ef",
+    ".router": "9e3b998a07d91feb5ab62686466e8e16bb9c48a527f7f6db05d9b19db1d352da",
+    ".qg": "89a1cc6d894af201ce802b76e84b912aa8760385f527830431eff8dc9ba4b476"
+  },
+  "page_params": {
+    "proxima.quantized_graph.thp_policy": "require",
+    "proxima.quantized_graph.thp_min_coverage": 0.95,
+    "proxima.quantized_graph.thp_min_coverage_floor": 0.8
+  },
+  "build": {
+    "threads": 8,
+    "passes": 2,
+    "search_list_size": 200,
+    "seed": 20261120,
+    "router_anchors": 65536,
+    "router_dimension": 64,
+    "router_seed": 202610261259,
+    "encoding": {
+      "codec": "rabitq",
+      "max_neighbors": 64,
+      "rotation_views": 2,
+      "block_dimension": 6,
+      "rank": 8,
+      "codebook": "hadamard",
+      "training_samples": 1024,
+      "center_weight": 1.0,
+      "seed": 20261031
+    }
+  },
+  "settings": [
+    {
+      "target": 0.9,
+      "options": {
+        "capacity": 128,
+        "margin": 0,
+        "bucket_width": 0.002,
+        "max_expansions": 48,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.95,
+      "options": {
+        "capacity": 128,
+        "margin": 0.0200687,
+        "bucket_width": 0.002,
+        "max_expansions": 64,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.99,
+      "options": {
+        "capacity": 2048,
+        "margin": 0.06435,
+        "bucket_width": 0.002,
+        "max_expansions": 128,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    }
+  ]
+}
