@@ -1,0 +1,120 @@
+{
+  "dataset": "gist-960-euclidean",
+  "metric": "euclidean",
+  "dimension": 960,
+  "train_shape": [
+    1000000,
+    960
+  ],
+  "train_sha256": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038",
+  "index_env": "ZVEC_QG_GIST_INDEX",
+  "snapshot_sha256": {
+    ".vectors": "1d9dfa933a86b1b78ef3de82eb286f85899866c428d373e42613783a13811038",
+    ".edges": "fdda909b704eace1fbc4372969fa7fc40585419ad4665dc8bf027c908cb4e4b5",
+    ".offsets": "5499d01d58cd987afb320dccdc9e1ab1dec2ee4b64b13c46887321f573e50c33",
+    ".qg": "a970f0b46604092c0af07aeb928bb3062c6c5ef217994eda3e8e4bc1cfc6d294",
+    ".router": "7dfac1eb482a07a75c42f9e29a45a8f07e7310f48ce6bcd6688d9c75affeb12f"
+  },
+  "page_params": {
+    "proxima.quantized_graph.thp_policy": "prepare"
+  },
+  "build": {
+    "search_list_size": 400,
+    "passes": 2,
+    "seed": 20261120,
+    "threads": 32,
+    "encoding": {
+      "codec": "low_rank",
+      "max_neighbors": 64,
+      "rotation_views": 1,
+      "codebook": "gaussian",
+      "block_dimension": 8,
+      "rank": 8,
+      "training_samples": 1024,
+      "seed": 20261031,
+      "center_weight": 1.0
+    },
+    "router_anchors": 8192,
+    "router_dimension": 256,
+    "router_seed": 202610261259
+  },
+  "settings": [
+    {
+      "target": 0.3,
+      "options": {
+        "capacity": 128,
+        "bucket_width": 0.008,
+        "margin": 1.0,
+        "max_expansions": 10,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.5,
+      "options": {
+        "capacity": 128,
+        "bucket_width": 0.002,
+        "margin": 0.002,
+        "max_expansions": 20,
+        "route_beam": 0,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.7,
+      "options": {
+        "capacity": 128,
+        "bucket_width": 0.002,
+        "margin": 0.0075,
+        "max_expansions": 30,
+        "route_beam": 0,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.85,
+      "options": {
+        "capacity": 2048,
+        "bucket_width": 0.002,
+        "margin": 0.03,
+        "max_expansions": 256,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.9,
+      "options": {
+        "capacity": 2048,
+        "bucket_width": 0.002,
+        "margin": 0.03,
+        "max_expansions": 256,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.95,
+      "options": {
+        "capacity": 2048,
+        "bucket_width": 0.002,
+        "margin": 0.055,
+        "max_expansions": 384,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    },
+    {
+      "target": 0.99,
+      "options": {
+        "capacity": 2048,
+        "bucket_width": 0.002,
+        "margin": 0.08,
+        "max_expansions": 384,
+        "route_beam": 1,
+        "uncertainty_bonus": 0
+      }
+    }
+  ]
+}

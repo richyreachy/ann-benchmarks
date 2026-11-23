@@ -1,0 +1,76 @@
+{
+  "dataset": "glove-100-angular",
+  "metric": "angular",
+  "dimension": 100,
+  "train_shape": [
+    1183514,
+    100
+  ],
+  "train_sha256": "3cccad7d66dd35ffd7215e37503f2e1fa31b3aab917a45aa0a6eb4ef590ebcef",
+  "index_env": "ZVEC_QG_GLOVE_N32_INDEX",
+  "snapshot_sha256": {
+    ".vectors": "499bce16280ef3d7f01c7118a320cccea59aad88d89a13628f1f7fc8401a4a72",
+    ".edges": "20af32e8e4d1f0a5e4376f17855a3c81de536a82159938f30134888fc2cbaa61",
+    ".offsets": "a60c8b94c4f4425ae5e6b6df9d43d2bb72172c99bf27593d09f9c6416c5fce9f",
+    ".qg": "10a5595cac1e83a0355d8a225d83b1162afef521bd75819293eca3fb74211d0a",
+    ".router": "5c129110a38462d23c8a515428a2cbd7139c3bb71aee77e1294468f27f268038"
+  },
+  "page_params": {
+    "proxima.quantized_graph.thp_policy": "prepare"
+  },
+  "build": {
+    "search_list_size": 400,
+    "passes": 2,
+    "seed": 20261120,
+    "threads": 32,
+    "encoding": {
+      "codec": "rabitq",
+      "max_neighbors": 32,
+      "rotation_views": 2,
+      "codebook": "hadamard",
+      "block_dimension": 6,
+      "rank": 8,
+      "training_samples": 1024,
+      "seed": 20261031,
+      "center_weight": 1.0
+    },
+    "router_anchors": 65536,
+    "router_dimension": 64,
+    "router_seed": 202610261259
+  },
+  "settings": [
+    {
+      "target": 0.3,
+      "options": {
+        "capacity": 128,
+        "max_expansions": 13,
+        "margin": 0.0,
+        "bucket_width": 0.004,
+        "route_beam": 1,
+        "uncertainty_bonus": 0.0
+      }
+    },
+    {
+      "target": 0.5,
+      "options": {
+        "capacity": 128,
+        "bucket_width": 0.002,
+        "margin": 0.0,
+        "max_expansions": 24,
+        "route_beam": 1,
+        "uncertainty_bonus": 0.0
+      }
+    },
+    {
+      "target": 0.7,
+      "options": {
+        "capacity": 128,
+        "bucket_width": 0.002,
+        "margin": 0.04,
+        "max_expansions": 64,
+        "route_beam": 1,
+        "uncertainty_bonus": 0.0
+      }
+    }
+  ]
+}
