@@ -1,8 +1,7 @@
 """Build r7i independent graphs with the installed zvec.QuantizedGraph API.
 
-Optional snapshot prefixes: ZVEC_QG_SIFT_INDEX, ZVEC_QG_GIST_INDEX,
-ZVEC_QG_GLOVE_N32_INDEX and ZVEC_QG_GLOVE_N64_INDEX. Each prefix identifies
-.vectors, .offsets, .edges, .router and .qg from the same independent build.
+Optional single-file index paths: ZVEC_QG_SIFT_INDEX, ZVEC_QG_GIST_INDEX,
+ZVEC_QG_GLOVE_N32_INDEX and ZVEC_QG_GLOVE_N64_INDEX.
 Settings list overrides to the common r7i search defaults below.
 """
 
@@ -48,7 +47,7 @@ class ZvecQuantizedGraph(BaseANN):
             raise RuntimeError("Install a zvec build exposing QuantizedGraph on a supported CPU")
         self.runtime_sha256 = digest(sys.modules[self.graph_type.__module__].__file__)
         self.zvec_version = zvec.__version__
-        self.prefix = os.environ.get(self.profile["index_env"])
+        self.index_path = os.environ.get(self.profile["index_env"])
         self.index = None
         self.setting = None
         self.name = f"zvec_qg {self.profile['dataset']} {Path(preset).stem}"
@@ -61,15 +60,10 @@ class ZvecQuantizedGraph(BaseANN):
         if hashlib.sha256(memoryview(X)).hexdigest() != self.profile["train_sha256"]:
             raise ValueError("Training corpus fingerprint mismatch")
         pages = self.profile["page_params"]
-        if self.prefix:
-            parts = self.profile["snapshot_sha256"]
-            if set(parts) != {".vectors", ".offsets", ".edges", ".router", ".qg"}:
-                raise ValueError("Incomplete independent graph snapshot manifest")
-            for ext, expected in parts.items():
-                if digest(self.prefix + ext) != expected:
-                    raise ValueError("Snapshot fingerprint mismatch: " + self.prefix + ext)
-            self.index = self.graph_type.open(self.prefix, count=len(X), dimension=X.shape[1],
-                                              metric=self.metric, page_params=pages)
+        if self.index_path:
+            if digest(self.index_path) != self.profile["snapshot_sha256"]:
+                raise ValueError("Snapshot fingerprint mismatch: " + self.index_path)
+            self.index = self.graph_type.open(self.index_path, page_params=pages)
         else:
             self.index = self.graph_type.build(X, metric=self.metric, options=self.profile["build"],
                                                page_params=pages)
@@ -89,7 +83,7 @@ class ZvecQuantizedGraph(BaseANN):
 
     def get_additional(self):
         return dict(entry="zvec.QuantizedGraph", base_graph="independent",
-                    fit_mode="load" if self.prefix else "build", query_threads=1,
+                    fit_mode="load" if self.index_path else "build", query_threads=1,
                     target_recall=self.profile["settings"][self.setting]["target"],
                     max_neighbors=self.profile["build"]["encoding"]["max_neighbors"],
                     zvec_version=self.zvec_version, runtime_sha256=self.runtime_sha256)

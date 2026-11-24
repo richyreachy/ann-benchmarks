@@ -1,17 +1,12 @@
 {
+  "graph_format": "independent-fp32-v1",
   "dataset": "glove-100-angular",
   "metric": "angular",
   "dimension": 100,
   "train_shape": [1183514, 100],
   "train_sha256": "3cccad7d66dd35ffd7215e37503f2e1fa31b3aab917a45aa0a6eb4ef590ebcef",
   "index_env": "ZVEC_QG_GLOVE_N32_INDEX",
-  "snapshot_sha256": {
-    ".vectors": "499bce16280ef3d7f01c7118a320cccea59aad88d89a13628f1f7fc8401a4a72",
-    ".edges": "20af32e8e4d1f0a5e4376f17855a3c81de536a82159938f30134888fc2cbaa61",
-    ".offsets": "a60c8b94c4f4425ae5e6b6df9d43d2bb72172c99bf27593d09f9c6416c5fce9f",
-    ".qg": "10a5595cac1e83a0355d8a225d83b1162afef521bd75819293eca3fb74211d0a",
-    ".router": "5c129110a38462d23c8a515428a2cbd7139c3bb71aee77e1294468f27f268038"
-  },
+  "snapshot_sha256": "902a3cc31c51e940d3953b62c5b9e2e5a6bdd1df6a8d77a269cf83cb370638f8",
   "page_params": {
     "proxima.quantized_graph.thp_policy": "prepare"
   },

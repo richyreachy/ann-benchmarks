@@ -1,17 +1,12 @@
 {
+  "graph_format": "independent-fp32-v1",
   "dataset": "sift-128-euclidean",
   "metric": "euclidean",
   "dimension": 128,
   "train_shape": [1000000, 128],
   "train_sha256": "ac8e11ed111b09e882bcf0ef1a77ebdd36c89f495bce8fd596603f69c35148e6",
   "index_env": "ZVEC_QG_SIFT_INDEX",
-  "snapshot_sha256": {
-    ".vectors": "ac8e11ed111b09e882bcf0ef1a77ebdd36c89f495bce8fd596603f69c35148e6",
-    ".edges": "62acab2872df6479fce67cbd0c89964f88e4d8cfd5f798f534281ae5192ea5e1",
-    ".offsets": "3311569db4c64af32d2f88b87aac8f216daf3e1aa0d7a060199a83faa5c75913",
-    ".qg": "2bf1fee061ebe38c7789ef5894117ea858d9344a00a41b0cd7543d8d3de39d2f",
-    ".router": "9e3b998a07d91feb5ab62686466e8e16bb9c48a527f7f6db05d9b19db1d352da"
-  },
+  "snapshot_sha256": "6f29a89b4454096dd2244ae062f886e92f76d6e6d4fa2a7f9f257a51d2b57a71",
   "page_params": {
     "proxima.quantized_graph.thp_policy": "prepare"
   },
