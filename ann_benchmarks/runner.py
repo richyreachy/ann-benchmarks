@@ -204,6 +204,7 @@ def run(definition: Definition, dataset_name: str, count: int, run_count: int, b
         run_count (int): The number of runs.
         batch (bool): If true, runs in batch mode.
     """
+    batch = batch or definition.default_batch
     algo = instantiate_algorithm(definition)
     assert not definition.query_argument_groups or hasattr(
         algo, "set_query_arguments"
@@ -319,7 +320,7 @@ def run_docker(
         "--count",
         str(count),
     ]
-    if batch:
+    if batch or definition.default_batch:
         cmd += ["--batch"]
     cmd.append(json.dumps(definition.arguments))
     cmd += [json.dumps(qag) for qag in definition.query_argument_groups]

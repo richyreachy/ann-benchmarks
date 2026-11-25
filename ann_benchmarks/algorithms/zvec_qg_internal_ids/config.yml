@@ -2,6 +2,7 @@ float:
   euclidean:
     - &qg
       name: zvec_qg_internal_ids
+      default_batch: true
       module: ann_benchmarks.algorithms.zvec_qg_internal_ids
       constructor: ZvecCollectionInternalIds
       docker_tag: ann-benchmarks-zvec_qg

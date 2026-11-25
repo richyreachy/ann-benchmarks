@@ -21,6 +21,7 @@ class Definition:
     arguments: List[Any]
     query_argument_groups: List[List[Any]]
     disabled: bool
+    default_batch: bool = False
 
 
 def instantiate_algorithm(definition: Definition) -> BaseANN:
@@ -350,6 +351,7 @@ def create_definitions_from_algorithm(name: str, algo: Dict[str, Any], dimension
                     arguments=current_args,
                     query_argument_groups=query_args,
                     disabled=algo.get("disabled", False),
+                    default_batch=algo.get("default_batch", False),
                 )
             )
     return definitions
