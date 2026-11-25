@@ -27,20 +27,25 @@ def digest(path):
     return result.hexdigest()
 
 
+def load_profile(metric, dimension, preset):
+    directory = Path(os.environ.get(
+        "ZVEC_QG_PRESET_DIR", Path(__file__).parent / "configs/r7i-native-builder"))
+    if preset == "euclidean-n64":
+        datasets = {128: "sift-n64.json", 960: "gist-n64.json"}
+        if dimension not in datasets:
+            raise ValueError("No r7i Euclidean preset for this dimension")
+        preset = datasets[dimension]
+    profile = json.loads((directory / preset).read_text())
+    if (metric, dimension) != (profile["metric"], profile["dimension"]):
+        raise ValueError("Dataset metric/dimension differs from the QG preset")
+    return Path(preset).stem, profile
+
+
 class ZvecQuantizedGraph(BaseANN):
     def __init__(self, metric, dimension, preset):
         import zvec
 
-        directory = Path(os.environ.get(
-            "ZVEC_QG_PRESET_DIR", Path(__file__).parent / "configs/r7i-native-builder"))
-        if preset == "euclidean-n64":
-            datasets = {128: "sift-n64.json", 960: "gist-n64.json"}
-            if dimension not in datasets:
-                raise ValueError("No r7i Euclidean preset for this dimension")
-            preset = datasets[dimension]
-        self.profile = json.loads((directory / preset).read_text())
-        if (metric, dimension) != (self.profile["metric"], self.profile["dimension"]):
-            raise ValueError("Dataset metric/dimension differs from the QG preset")
+        preset, self.profile = load_profile(metric, dimension, preset)
         self.metric = {"angular": "cosine", "euclidean": "l2"}[metric]
         self.graph_type = getattr(zvec, "QuantizedGraph", None)
         if self.graph_type is None or not self.graph_type.supported():
@@ -50,7 +55,7 @@ class ZvecQuantizedGraph(BaseANN):
         self.index_path = os.environ.get(self.profile["index_env"])
         self.index = None
         self.setting = None
-        self.name = f"zvec_qg {self.profile['dataset']} {Path(preset).stem}"
+        self.name = f"zvec_qg {self.profile['dataset']} {preset}"
 
     def fit(self, X):
         if self.index is not None:
