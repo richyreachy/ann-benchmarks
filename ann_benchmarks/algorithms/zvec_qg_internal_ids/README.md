@@ -7,7 +7,8 @@ float32 vector and a two-dimensional float32 array through this overload.
 The r7i run used Zvec exploration commit `b1bfadd5` with the NumPy binding
 patch applied (native extension SHA-256
 `97e0e51c5eec80380cd07b53efdd78a46ea7cd91823062fec8d476b5699d4de4`).
-For a historical standalone comparison, select `--algorithm zvec_qg --run-disabled`.
+Historical standalone runs require an older wheel exposing `zvec.QuantizedGraph.search`
+and the flags `--algorithm zvec_qg --run-disabled`.
 
 From the ANN-Benchmarks checkout, with its dependencies and the matching Zvec
 build available in the Python environment, run

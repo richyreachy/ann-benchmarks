@@ -3,7 +3,6 @@ import hashlib
 import inspect
 import json
 import os
-import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -18,6 +17,7 @@ class ZvecCollectionInternalIds(BaseANN):
 
     def __init__(self, metric, dimension, preset):
         import zvec
+        from zvec import _zvec
 
         if "vectors" not in inspect.signature(zvec.Collection.query_internal_ids).parameters:
             raise RuntimeError("Install a zvec build with the NumPy overload of Collection.query_internal_ids")
@@ -25,7 +25,7 @@ class ZvecCollectionInternalIds(BaseANN):
         self.preset, self.profile = load_profile(metric, dimension, preset)
         self.metric = {"angular": zvec.MetricType.COSINE, "euclidean": zvec.MetricType.L2}[metric]
         self.name = f"zvec_qg_internal_ids {self.profile['dataset']} {self.preset}"
-        self.runtime_sha256 = digest(sys.modules[zvec.QuantizedGraph.__module__].__file__)
+        self.runtime_sha256 = digest(_zvec.__file__)
         self.collection = None
         self.temp = None
         self.setting = None
