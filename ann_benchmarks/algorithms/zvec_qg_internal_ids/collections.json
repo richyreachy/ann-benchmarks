@@ -1,0 +1,18 @@
+{
+  "sift-n64": {
+    "env": "ZVEC_QG_SIFT_COLLECTION",
+    "sha256": "6aa37d8f74c0ba267fb2125527b3319e7c2e1ccd5dbeff3b5ac4298b352cf6f5"
+  },
+  "gist-n64": {
+    "env": "ZVEC_QG_GIST_COLLECTION",
+    "sha256": "74542f97ebabc7db6ad8eb680660207b6c21d86fa70a638d70b7f98739baad49"
+  },
+  "glove-n64-gaussian": {
+    "env": "ZVEC_QG_GLOVE_N64_COLLECTION",
+    "sha256": "378e6487cda5114dab4102dc51ca06d149175de702d0471673a88e04916932d4"
+  },
+  "glove-n32": {
+    "env": "ZVEC_QG_GLOVE_N32_COLLECTION",
+    "sha256": "1a0c98d0273ed3436370f0a1940fcaedda5dc1999c7cd2b7a55d9f3c72d56506"
+  }
+}

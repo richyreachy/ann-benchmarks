@@ -158,10 +158,11 @@ def filter_already_run_definitions(
     filtered_definitions = []
 
     for definition in definitions:
+        use_batch = batch or definition.default_batch
         not_yet_run = [
             query_args 
             for query_args in (definition.query_argument_groups or [[]])
-            if force or not os.path.exists(build_result_filepath(dataset, count, definition, query_args, batch))
+            if force or not os.path.exists(build_result_filepath(dataset, count, definition, query_args, use_batch))
         ]
 
         if not_yet_run:

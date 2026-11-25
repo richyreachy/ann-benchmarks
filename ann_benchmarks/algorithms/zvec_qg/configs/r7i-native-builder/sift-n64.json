@@ -1,0 +1,42 @@
+{
+  "graph_format": "independent-fp32-v1",
+  "dataset": "sift-128-euclidean",
+  "metric": "euclidean",
+  "dimension": 128,
+  "train_shape": [1000000, 128],
+  "train_sha256": "ac8e11ed111b09e882bcf0ef1a77ebdd36c89f495bce8fd596603f69c35148e6",
+  "index_env": "ZVEC_QG_SIFT_INDEX",
+  "snapshot_sha256": "6f29a89b4454096dd2244ae062f886e92f76d6e6d4fa2a7f9f257a51d2b57a71",
+  "page_params": {
+    "proxima.quantized_graph.thp_policy": "prepare"
+  },
+  "build": {
+    "search_list_size": 400,
+    "passes": 2,
+    "seed": 20261120,
+    "threads": 32,
+    "encoding": {
+      "codec": "rabitq",
+      "max_neighbors": 64,
+      "rotation_views": 2,
+      "codebook": "hadamard",
+      "block_dimension": 6,
+      "rank": 8,
+      "training_samples": 1024,
+      "seed": 20261031,
+      "center_weight": 1.0
+    },
+    "router_anchors": 65536,
+    "router_dimension": 64,
+    "router_seed": 202610261259
+  },
+  "settings": [
+    {"target": 0.3, "options": {"max_expansions": 10, "margin": 1.0, "bucket_width": 0.004, "route_beam": 0}},
+    {"target": 0.5, "options": {"max_expansions": 10, "margin": 1.0, "bucket_width": 0.002, "capacity": 32}},
+    {"target": 0.7, "options": {"max_expansions": 16, "margin": 0.002, "bucket_width": 0.002}},
+    {"target": 0.85, "options": {"max_expansions": 24, "margin": 0.0075, "bucket_width": 0.002}},
+    {"target": 0.9, "options": {"max_expansions": 48, "margin": 0.008, "bucket_width": 0.002}},
+    {"target": 0.95, "options": {"max_expansions": 64, "margin": 0.038, "bucket_width": 0.002}},
+    {"target": 0.99, "options": {"max_expansions": 128, "margin": 0.09, "bucket_width": 0.002, "capacity": 2048}}
+  ]
+}
